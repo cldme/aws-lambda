@@ -19,7 +19,14 @@ setuptools.setup(
     packages=setuptools.find_packages(where="aws_lambda"),
 
     install_requires=[
-        "aws-cdk.core==1.37.0",
+        "aws-cdk.core",
+        "aws-cdk.aws_lambda",
+        "aws-cdk.aws_dynamodb",
+        "boto3",
+        "botocore"
+        "aws-cdk.aws_events",
+        "aws-cdk.aws_lambda_event_sources",
+        "aws-cdk.aws_events_targets"
     ],
 
     python_requires=">=3.6",
