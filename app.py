@@ -6,6 +6,6 @@ from aws_lambda.aws_lambda_stack import AwsLambdaStack
 
 
 app = core.App()
-AwsLambdaStack(app, "aws-lambda")
+AwsLambdaStack(app, "aws-lambda", env=core.Environment(region="eu-central-1"))
 
 app.synth()
