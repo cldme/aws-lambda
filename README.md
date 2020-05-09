@@ -16,7 +16,8 @@ For developing microservices using lambdas AWS offers a set of command line inte
 - [Installing the AWS VS Code Toolkit](https://docs.aws.amazon.com/toolkit-for-vscode/latest/userguide/setup-toolkit.html)
 
 # Setup
-The setup process for configuring an AWS account with all the required prerequisits in order to start developing with AWS Lambdas can be found [here](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html).
+The setup process for configuring an AWS account with all the required prerequisits in order to start developing with AWS Lambdas can be found [here](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html). The guidelines below assume you have configured your AWS CLI credentials and have installed the AWS CDK CLI.
+**Note:** most of the provided code snippets work on Linux and MacOS, however the setup is very similar for Windows as well.
 
 This is a blank project for Python development with CDK. The `cdk.json` file tells the CDK Toolkit how to execute your app. This project is set up like a standard Python project. The initialization process also creates a virtualenv within this project, stored under the .env directory. To create the virtualenv it assumes that there is a `python3` (or `python` for Windows) executable in your path with access to the `venv` package. If for any reason the automatic creation of the virtualenv fails, you can create the virtualenv manually.
 
@@ -39,15 +40,14 @@ Once the virtualenv is activated, you can install the required dependencies.
 ```
 $ pip install -r requirements.txt
 ```
+**Note:** for packaging external libraries used in our lambda functions the `pip` modules `poetry` and `docker` are used. When running any `cdk` commands, a `.build` folder will be created together with a `.zip` for any lambda that uses external libraries. Any externals should be added to `setup.py` and will automatically be picked up by the [zip_asset_code.py](https://github.com/cldme/aws-lambda/blob/master/aws_cdk_lambda_asset/zip_asset_code.py) script when creating the `.build` folder and will be shipped with the lambdas once the cloud stack is brought up.
 
 At this point you can now synthesize the CloudFormation template for this code.
 ```
 $ cdk synth
 ```
 
-To add additional dependencies, for example other CDK libraries, just add them to your `setup.py` file and rerun the `pip install -r requirements.txt` command.
-
-  
+To add additional dependencies, for example other CDK libraries, just add them to your `setup.py` file and rerun the `pip install -r requirements.txt` command.  
 
 ## Useful commands
 

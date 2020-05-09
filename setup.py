@@ -25,6 +25,8 @@ setuptools.setup(
         "aws-cdk.aws_apigateway",
         "boto3",
         "botocore",
+        "poetry",
+        "docker"
     ],
 
     python_requires=">=3.6",
