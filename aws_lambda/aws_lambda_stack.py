@@ -14,15 +14,15 @@ class AwsLambdaStack(core.Stack):
         # The code that defines your stack goes here
 
         # DynamoDB
-        table = aws_dynamodb.Table(
+        users_table = aws_dynamodb.Table(
             self, 
-            "table_1",
+            "users_table",
             partition_key=aws_dynamodb.Attribute(
                 name="id",
                 type=aws_dynamodb.AttributeType.STRING
             ),
             billing_mode=aws_dynamodb.BillingMode.PAY_PER_REQUEST,
-            table_name="table_1"
+            table_name="users_table"
         )
 
         # Lambdas
@@ -44,7 +44,7 @@ class AwsLambdaStack(core.Stack):
             function_name="users_create_lambda"
         )
 
-        # API Lambda Integrations
+        # API Lambda integrations
         items_integration = aws_apigateway.LambdaIntegration(items_lambda)
         users_integration = aws_apigateway.LambdaIntegration(users_create_lambda)
 
@@ -59,10 +59,14 @@ class AwsLambdaStack(core.Stack):
 
         users = api.root.add_resource("users")
         user = users.add_resource("{user}")
-        user.add_method("GET", users_integration)       # GET   /users/{user}
-        users.add_method("GET", users_integration)      # GET   /users
-        users.add_method("POST", users_integration)     # POST  /users
+        users_create = users.add_resource("create")
+        user.add_method("GET", users_integration)           # GET   /users/{user}
+        users.add_method("GET", users_integration)          # GET   /users
+        users.add_method("POST", users_integration)         # POST  /users
+        users_create.add_method("POST", users_integration)  # POST  /users/create
 
         # Permissions
-        table.grant_read_write_data(items_lambda)
-        table.grant_read_write_data(users_create_lambda)
+        users_table.grant_read_write_data(users_create_lambda)
+
+        # Environment variables
+        users_create_lambda.add_environment("USERS_TABLE", users_table.table_name)
