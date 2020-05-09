@@ -8,3 +8,10 @@ __pycache__
 # CDK asset staging directory
 .cdk.staging
 cdk.out
+
+# VS Code settings
+.vscode/
+
+# Build items
+.build/
+*.zip

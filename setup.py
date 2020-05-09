@@ -22,11 +22,9 @@ setuptools.setup(
         "aws-cdk.core",
         "aws-cdk.aws_lambda",
         "aws-cdk.aws_dynamodb",
+        "aws-cdk.aws_apigateway",
         "boto3",
-        "botocore"
-        "aws-cdk.aws_events",
-        "aws-cdk.aws_lambda_event_sources",
-        "aws-cdk.aws_events_targets"
+        "botocore",
     ],
 
     python_requires=">=3.6",

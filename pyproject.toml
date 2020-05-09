@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "aws_cdk_lambda_asset"
+version = "0.1.0"
+description = "AWS CDK construct for packaging lambda functions with dependencies"
+license = "MIT"
+authors = ["Josef Stach <josef.stach@bulletproof.ai>"]
+readme = "README.md"
+repository = "https://gitlab.com/josef.stach/aws-cdk-lambda-asset"
+keywords = ["AWS", "CDK", "Lambda", "Construct"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+docker = "^4.0"
+"aws-cdk.core" = "^1.6.1"
+"aws-cdk.aws-lambda" = "^1.6.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.1"
+pytest-cov = "^2.7.1"
