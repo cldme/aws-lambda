@@ -27,7 +27,7 @@ def lambda_handler(event, context):
         user_id = str(uuid.uuid4())
 
         try:
-            response = users_table.put_item(Item = {'id': user_id,'credit': 0})
+            response = users_table.put_item(Item = {'id': user_id,'credit': decimal.Decimal('0')})
         except ClientError as e:
             print(e.response['Error']['Message'])
             statusCode = 400

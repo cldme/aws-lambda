@@ -3,10 +3,10 @@ import json
 import uuid
 import boto3
 import decimal
-import requests
 from boto3.dynamodb.conditions import Key, Attr
 from botocore.exceptions import ClientError
 
+# get the service resource
 dynamodb = boto3.resource('dynamodb')
 
 # helper class to convert a DynamoDB item to JSON

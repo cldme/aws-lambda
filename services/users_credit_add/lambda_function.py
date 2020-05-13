@@ -25,30 +25,28 @@ def lambda_handler(event, context):
     if event['httpMethod'] == "POST":
         users_table = dynamodb.Table('users_table')
         user_id = event['pathParameters']['user_id']
-        amount = event['pathParameters']['amount']
+        amount = decimal.Decimal(event['pathParameters']['amount'])
+
+        ## build-in mechanism against negative credit
 
         try:
-            item = users_table.get_item(Key={'id': user_id})
-            new_credit_value = item['credit']+amount
+            user_object = users_table.get_item(Key={'id': user_id})
+            current_credit = user_object['Item']['credit']
+            new_credit = current_credit+amount
 
             response = users_table.update_item(
-                Key={'user_id': user_id},
+                Key={'id': user_id},
                 UpdateExpression="set credit = :credit",
-                ExpressionAttributeValues={':credit': new_credit_value},
+                ExpressionAttributeValues={':credit': decimal.Decimal(new_credit)},
                 ReturnValues="UPDATED_NEW"
             )
         except ClientError as e:
             print(e.response['Error']['Message'])
             statusCode = 400
-            body = json.dumps({})
         else:
-            res = str(json.dumps(response, cls=DecimalEncoder))
-            print(f'Updated result: {res}')
-
+            print(f'Credit successfully added!')
             statusCode = 200
-            body = json.dumps({})
 
     return {
-        "statusCode": statusCode,
-        "body": body
+        "statusCode": statusCode
     }

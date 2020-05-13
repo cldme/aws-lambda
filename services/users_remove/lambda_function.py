@@ -3,10 +3,10 @@ import json
 import uuid
 import boto3
 import decimal
-import requests
 from boto3.dynamodb.conditions import Key, Attr
 from botocore.exceptions import ClientError
 
+# get the service resource
 dynamodb = boto3.resource('dynamodb')
 
 # helper class to convert a DynamoDB item to JSON
@@ -27,6 +27,8 @@ def lambda_handler(event, context):
         users_table = dynamodb.Table('users_table')
         user_id = event['pathParameters']['user_id']
 
+        ## Build-in case in which the users' credit is not equal to zero
+
         try:
             response = users_table.delete_item(Key={'id': user_id})
         except ClientError as e:
@@ -34,15 +36,9 @@ def lambda_handler(event, context):
             statusCode = 400
             body = json.dumps({})
         else:
-            item = response['Item']
-            print("User successfully fetched from DynamoDB")
-            print(json.dumps(response, indent=4, cls=DecimalEncoder))
-
+            print("User successfully removed!")
             statusCode = 200
-            body = json.dumps({
-                'user_id': item['id'],
-                'credit': item['credit']
-            }) 
+            body = json.dumps({}) 
 
     return {
         "statusCode": statusCode,
