@@ -24,22 +24,29 @@ def lambda_handler(event, context):
 
     if event['httpMethod'] == "POST":
         users_table = dynamodb.Table('users_table')
-        user_id = str(uuid.uuid4())
+        user_id = event['pathParameters']['user_id']
+        amount = event['pathParameters']['amount']
 
         try:
-            response = users_table.put_item(Item = {'id': user_id,'credit': 0})
+            item = users_table.get_item(Key={'id': user_id})
+            new_credit_value = item['credit']+amount
+
+            response = users_table.update_item(
+                Key={'user_id': user_id},
+                UpdateExpression="set credit = :credit",
+                ExpressionAttributeValues={':credit': new_credit_value},
+                ReturnValues="UPDATED_NEW"
+            )
         except ClientError as e:
             print(e.response['Error']['Message'])
             statusCode = 400
             body = json.dumps({})
         else:
             res = str(json.dumps(response, cls=DecimalEncoder))
-            print(f'put_item result: {res}')
+            print(f'Updated result: {res}')
 
             statusCode = 200
-            body = json.dumps({
-                'user_id': user_id
-            })
+            body = json.dumps({})
 
     return {
         "statusCode": statusCode,

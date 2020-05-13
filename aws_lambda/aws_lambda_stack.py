@@ -26,14 +26,14 @@ class AwsLambdaStack(core.Stack):
         )
 
         # Lambdas
-        items_lambda = aws_lambda.Function(
-            self,
-            "items_lambda",
-            runtime=aws_lambda.Runtime.PYTHON_3_6,
-            handler="lambda_function.lambda_handler",
-            code=aws_lambda.Code.asset("./services/items"),
-            function_name="items_lambda"
-        )
+        # items_lambda = aws_lambda.Function(
+        #     self,
+        #     "items_lambda",
+        #     runtime=aws_lambda.Runtime.PYTHON_3_6,
+        #     handler="lambda_function.lambda_handler",
+        #     code=aws_lambda.Code.asset("./services/items"),
+        #     function_name="items_lambda"
+        # )
 
         users_create_lambda = aws_lambda.Function(
             self,
@@ -44,29 +44,98 @@ class AwsLambdaStack(core.Stack):
             function_name="users_create_lambda"
         )
 
+        users_find_lambda = aws_lambda.Function(
+            self,
+            "users_find_lambda",
+            runtime=aws_lambda.Runtime.PYTHON_3_6,
+            handler="users_find/lambda_function.lambda_handler",
+            code=ZipAssetCode(work_dir=work_dir, include=["./services/users_find"], file_name="users_find_lambda.zip"),
+            function_name="users_find_lambda"
+        )
+
+        users_remove_lambda = aws_lambda.Function(
+            self,
+            "users_remove_lambda",
+            runtime=aws_lambda.Runtime.PYTHON_3_6,
+            handler="users_remove/lambda_function.lambda_handler",
+            code=ZipAssetCode(work_dir=work_dir, include=["./services/users_remove"], file_name="users_remove_lambda.zip"),
+            function_name="users_remove_lambda"
+        )
+
+        users_credit_subtract_lambda = aws_lambda.Function(
+            self,
+            "users_credit_subtract_lambda",
+            runtime=aws_lambda.Runtime.PYTHON_3_6,
+            handler="users_credit_subtract/lambda_function.lambda_handler",
+            code=ZipAssetCode(work_dir=work_dir, include=["./services/users_credit_subtract"], file_name="users_credit_subtract_lambda.zip"),
+            function_name="users_credit_subtract_lambda"
+        )
+
+        users_credit_add_lambda = aws_lambda.Function(
+            self,
+            "users_credit_add_lambda",
+            runtime=aws_lambda.Runtime.PYTHON_3_6,
+            handler="users_credit_add/lambda_function.lambda_handler",
+            code=ZipAssetCode(work_dir=work_dir, include=["./services/users_credit_add"], file_name="users_credit_add_lambda.zip"),
+            function_name="users_credit_add_lambda"
+        )
+
         # API Lambda integrations
-        items_integration = aws_apigateway.LambdaIntegration(items_lambda)
-        users_integration = aws_apigateway.LambdaIntegration(users_create_lambda)
+        users_create_integration = aws_apigateway.LambdaIntegration(users_create_lambda)
+        users_find_integration = aws_apigateway.LambdaIntegration(users_find_lambda)
+        users_remove_integration = aws_apigateway.LambdaIntegration(users_remove_lambda)
+        users_credit_subtract_integration = aws_apigateway.LambdaIntegration(users_credit_subtract_lambda)
+        users_credit_add_integration = aws_apigateway.LambdaIntegration(users_credit_add_lambda)
+        
+        # orders_integration = aws_apigateway.LambdaIntegration(orders_lambda)
+        # stock_integration = aws_apigateway.LambdaIntegration(stock_lambda)
+        # payment_integration = aws_apigateway.LambdaIntegration(payment_lambda)
 
         # REST API
         api = aws_apigateway.RestApi(self, "webshop-api", rest_api_name="webshop-api")
 
-        items = api.root.add_resource("items")
-        item = items.add_resource("{item}")
-        item.add_method("GET", items_integration)       # GET   /items/{item}
-        items.add_method("GET", items_integration)      # GET   /items
-        items.add_method("POST", items_integration)     # POST  /items
+        # ## ITEMS RESOURCE
+        # items = api.root.add_resource("items")
+        # item = items.add_resource("{item}")
+        # item.add_method("GET", items_integration)       # GET   /items/{item}
+        # items.add_method("GET", items_integration)      # GET   /items
+        # items.add_method("POST", items_integration)     # POST  /items
 
+        ## USERS RESOURCE
         users = api.root.add_resource("users")
-        user = users.add_resource("{user}")
-        users_create = users.add_resource("create")
-        user.add_method("GET", users_integration)           # GET   /users/{user}
-        users.add_method("GET", users_integration)          # GET   /users
-        users.add_method("POST", users_integration)         # POST  /users
-        users_create.add_method("POST", users_integration)  # POST  /users/create
 
+        users_create = users.add_resource("create")                     # POST      /users/create
+        users_create.add_method("POST", users_create_integration)
+
+        users_remove = users.add_resource("remove")                     # DELETE    /users/remove/{user_id}
+        users_remove_param = users_remove.add_resource("{user_id}")
+        users_remove_param.add_method("DELETE", users_remove_integration)
+
+        users_find = users.add_resource("find")                         # FIND      /users/find/{user_id}
+        users_find_param = users_find.add_resource("{user_id}")
+        users_find_param.add_method("GET", users_find_integration)
+
+        users_credit = users.add_resource("credit")                     
+        users_credit_subtract = users_credit.add_resource("subtract")   # POST      /users/credit/subtract/{user_id}/{amount}
+        users_credit_subtract_param = users_credit_subtract.add_resource("{user_id}")
+        users_credit_subtract_param_param = users_credit_subtract_param.add_resource("{amount}")
+        users_credit_subtract_param_param.add_method("POST", users_credit_subtract_integration)
+
+        users_credit_add = users_credit.add_resource("add")             # POST      /users/credit/add/{user_id}/{amount}
+        users_credit_add_param = users_credit_add.add_resource("{user_id}")
+        users_credit_add_param_param = users_credit_add_param.add_resource("{amount}")
+        users_credit_add_param_param.add_method("POST", users_credit_add_integration)
+        
         # Permissions
         users_table.grant_read_write_data(users_create_lambda)
+        users_table.grant_read_write_data(users_find_lambda)
+        users_table.grant_read_write_data(users_remove_lambda)
+        users_table.grant_read_write_data(users_credit_subtract_lambda)
+        users_table.grant_read_write_data(users_credit_add_lambda)
 
         # Environment variables
-        users_create_lambda.add_environment("USERS_TABLE", users_table.table_name)
+        # users_create_lambda.add_environment("USERS_TABLE", users_table.table_name)
+        # users_remove_lambda.add_environment("USERS_TABLE", users_table.table_name)
+        # users_find_lambda.add_environment("USERS_TABLE", users_table.table_name)
+        # users_credit_subtract_lambda.add_environment("USERS_TABLE", users_table.table_name)
+        # users_credit_add_lambda.add_environment("USERS_TABLE", users_table.table_name)
