@@ -7,7 +7,7 @@ from botocore.exceptions import ClientError
 
 # get the service resource
 dynamodb = boto3.resource('dynamodb')
-
+# get the users table
 USERS_TABLE = os.environ['USERS_TABLE']
 
 # helper class to convert a DynamoDB item to JSON

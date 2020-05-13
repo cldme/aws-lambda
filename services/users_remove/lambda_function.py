@@ -3,11 +3,12 @@ import json
 import uuid
 import boto3
 import decimal
-from boto3.dynamodb.conditions import Key, Attr
 from botocore.exceptions import ClientError
 
 # get the service resource
 dynamodb = boto3.resource('dynamodb')
+# get the users table
+USERS_TABLE = os.environ['USERS_TABLE']
 
 # helper class to convert a DynamoDB item to JSON
 # for details see: https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GettingStarted.Python.03.html
@@ -22,21 +23,17 @@ class DecimalEncoder(json.JSONEncoder):
 
 def lambda_handler(event, context):
 
-    # This will produce an error for a test on the lambda function itself, but not if it is tested API wise
-    if event['httpMethod'] == "DELETE":
-        users_table = dynamodb.Table('users_table')
-        user_id = event['pathParameters']['user_id']
+    users_table = dynamodb.Table(USERS_TABLE)
+    user_id = event['pathParameters']['user_id']
 
-        ## Build-in case in which the users' credit is not equal to zero
-
-        try:
-            response = users_table.delete_item(Key={'id': user_id})
-        except ClientError as e:
-            print(e.response['Error']['Message'])
-            statusCode = 400
-        else:
-            print("User successfully removed!")
-            statusCode = 200 
+    try:
+        response = users_table.delete_item(Key={'id': user_id})
+        res = str(json.dumps(response, cls=DecimalEncoder))
+        print(f'user successfully removed: {res}')
+        statusCode = 200
+    except ClientError as e:
+        print(f'delete_item error: {e}')
+        statusCode = 400
 
     return {
         "statusCode": statusCode
