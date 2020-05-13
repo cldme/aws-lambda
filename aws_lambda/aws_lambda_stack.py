@@ -128,7 +128,7 @@ class AwsLambdaStack(core.Stack):
         users_table.grant_read_write_data(users_credit_add_lambda)
 
         # Environment variables
-        # users_create_lambda.add_environment("USERS_TABLE", users_table.table_name)
+        users_create_lambda.add_environment("USERS_TABLE", users_table.table_name)
         # users_remove_lambda.add_environment("USERS_TABLE", users_table.table_name)
         # users_find_lambda.add_environment("USERS_TABLE", users_table.table_name)
         # users_credit_subtract_lambda.add_environment("USERS_TABLE", users_table.table_name)
