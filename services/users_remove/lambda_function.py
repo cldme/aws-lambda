@@ -34,13 +34,10 @@ def lambda_handler(event, context):
         except ClientError as e:
             print(e.response['Error']['Message'])
             statusCode = 400
-            body = json.dumps({})
         else:
             print("User successfully removed!")
-            statusCode = 200
-            body = json.dumps({}) 
+            statusCode = 200 
 
     return {
-        "statusCode": statusCode,
-        "body": body
+        "statusCode": statusCode
     }
