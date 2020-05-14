@@ -22,24 +22,19 @@ class DecimalEncoder(json.JSONEncoder):
         return super(DecimalEncoder, self).default(o)
 
 def lambda_handler(event, context):
-    
+
     users_table = dynamodb.Table(USERS_TABLE)
-    user_id = str(uuid.uuid4())
+    user_id = event['pathParameters']['user_id']
 
     try:
-        response = users_table.put_item(Item = {'id': user_id, 'credit': decimal.Decimal('0.0')})
+        response = users_table.delete_item(Key={'id': user_id})
         res = str(json.dumps(response, cls=DecimalEncoder))
+        print(f'user successfully removed: {res}')
         statusCode = 200
-        body = json.dumps({
-            'user_id': user_id
-        })
-        print(f'put_item result: {res}')
     except ClientError as e:
+        print(f'delete_item error: {e}')
         statusCode = 400
-        body = json.dumps({})
-        print(f'put_item error: {e}')
 
     return {
-        "statusCode": statusCode,
-        "body": body
+        "statusCode": statusCode
     }

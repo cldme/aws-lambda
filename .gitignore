@@ -15,3 +15,6 @@ cdk.out
 # Build items
 .build/
 *.zip
+
+# .DS_STORE Mac
+.DS_STORE
