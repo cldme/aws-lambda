@@ -107,11 +107,22 @@ class AwsLambdaStack(core.Stack):
             self,
             "orders_remove_lambda",
             runtime=aws_lambda.Runtime.PYTHON_3_6,
-            # handler="orders_create/lambda_function.lambda_handler",
-            # code=ZipAssetCode(work_dir=work_dir, include=["./services/orders_create"], file_name="orders_create_lambda.zip"),
+            # handler="orders_remove/lambda_function.lambda_handler",
+            # code=ZipAssetCode(work_dir=work_dir, include=["./services/orders_remove"], file_name="orders_remove_lambda.zip"),
             handler="lambda_function.lambda_handler",
             code=aws_lambda.Code.asset("./services/orders_remove"),
             function_name="orders_remove_lambda"
+        )
+
+        orders_find_lambda = aws_lambda.Function(
+            self,
+            "orders_find_lambda",
+            runtime=aws_lambda.Runtime.PYTHON_3_6,
+            # handler="orders_find/lambda_function.lambda_handler",
+            # code=ZipAssetCode(work_dir=work_dir, include=["./services/orders_find"], file_name="orders_find_lambda.zip"),
+            handler="lambda_function.lambda_handler",
+            code=aws_lambda.Code.asset("./services/orders_find"),
+            function_name="orders_find_lambda"
         )
 
         # API Lambda integrations
@@ -123,6 +134,7 @@ class AwsLambdaStack(core.Stack):
 
         orders_create_integration = aws_apigateway.LambdaIntegration(orders_create_lambda)
         orders_remove_integration = aws_apigateway.LambdaIntegration(orders_remove_lambda)
+        orders_find_integration = aws_apigateway.LambdaIntegration(orders_find_lambda)
 
         # REST API
         api = aws_apigateway.RestApi(self, "webshop-api", rest_api_name="webshop-api")
@@ -161,6 +173,10 @@ class AwsLambdaStack(core.Stack):
         # DELETE /orders/remove/{order_id}
         orders_remove = orders.add_resource("remove").add_resource("{order_id}")
         orders_remove.add_method("DELETE", orders_remove_integration)
+
+        # GET /orders/find/{order_id}
+        orders_find = orders.add_resource("find").add_resource("{order_id}")
+        orders_find.add_method("GET", orders_find_integration)
         
         # Permissions
         users_table.grant_read_write_data(users_create_lambda)
@@ -171,6 +187,7 @@ class AwsLambdaStack(core.Stack):
 
         orders_table.grant_read_write_data(orders_create_lambda)
         orders_table.grant_read_write_data(orders_remove_lambda)
+        orders_table.grant_read_write_data(orders_find_lambda)
 
         # Environment variables
         users_create_lambda.add_environment("USERS_TABLE", users_table.table_name)
@@ -181,3 +198,4 @@ class AwsLambdaStack(core.Stack):
 
         orders_create_lambda.add_environment("ORDERS_TABLE", orders_table.table_name)
         orders_remove_lambda.add_environment("ORDERS_TABLE", orders_table.table_name)
+        orders_find_lambda.add_environment("ORDERS_TABLE", orders_table.table_name)
