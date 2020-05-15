@@ -136,6 +136,28 @@ class AwsLambdaStack(core.Stack):
             function_name="orders_find_lambda"
         )
 
+        orders_item_add_lambda = aws_lambda.Function(
+            self,
+            "orders_item_add_lambda",
+            runtime=aws_lambda.Runtime.PYTHON_3_6,
+            # handler="orders_item_add/lambda_function.lambda_handler",
+            # code=ZipAssetCode(work_dir=work_dir, include=["./services/orders_item_add"], file_name="orders_item_add_lambda.zip"),
+            handler="lambda_function.lambda_handler",
+            code=aws_lambda.Code.asset("./services/orders_item_add"),
+            function_name="orders_item_add_lambda"
+        )
+
+        orders_item_remove_lambda = aws_lambda.Function(
+            self,
+            "orders_item_remove_lambda",
+            runtime=aws_lambda.Runtime.PYTHON_3_6,
+            # handler="orders_item_remove/lambda_function.lambda_handler",
+            # code=ZipAssetCode(work_dir=work_dir, include=["./services/orders_item_remove"], file_name="orders_item_remove_lambda.zip"),
+            handler="lambda_function.lambda_handler",
+            code=aws_lambda.Code.asset("./services/orders_item_remove"),
+            function_name="orders_item_remove_lambda"
+        )
+
         stock_create_lambda = aws_lambda.Function(
             self,
             "stock_create_lambda",
@@ -190,6 +212,8 @@ class AwsLambdaStack(core.Stack):
         orders_create_integration = aws_apigateway.LambdaIntegration(orders_create_lambda)
         orders_remove_integration = aws_apigateway.LambdaIntegration(orders_remove_lambda)
         orders_find_integration = aws_apigateway.LambdaIntegration(orders_find_lambda)
+        orders_item_add_integration = aws_apigateway.LambdaIntegration(orders_item_add_lambda)
+        orders_item_remove_integration = aws_apigateway.LambdaIntegration(orders_item_remove_lambda)
 
         stock_create_integration = aws_apigateway.LambdaIntegration(stock_create_lambda)
         stock_find_integration = aws_apigateway.LambdaIntegration(stock_find_lambda)
@@ -238,6 +262,14 @@ class AwsLambdaStack(core.Stack):
         orders_find = orders.add_resource("find").add_resource("{order_id}")
         orders_find.add_method("GET", orders_find_integration)
 
+        # POST /orders/addItem/{order_id}/{item_id}
+        orders_item_add = orders.add_resource("addItem").add_resource("{order_id}").add_resource("{item_id}")
+        orders_item_add.add_method("POST", orders_item_add_integration)
+
+        # POST /orders/removeItem/{order_id}/{item_id}
+        orders_item_remove = orders.add_resource("removeItem").add_resource("{order_id}").add_resource("{item_id}")
+        orders_item_remove.add_method("DELETE", orders_item_remove_integration)
+
         # STOCK RESOURCE
         stock = api.root.add_resource("stock")
 
@@ -267,11 +299,15 @@ class AwsLambdaStack(core.Stack):
         orders_table.grant_read_write_data(orders_create_lambda)
         orders_table.grant_read_write_data(orders_remove_lambda)
         orders_table.grant_read_write_data(orders_find_lambda)
+        orders_table.grant_read_write_data(orders_item_add_lambda)
+        orders_table.grant_read_write_data(orders_item_remove_lambda)
 
         stock_table.grant_read_write_data(stock_create_lambda)
         stock_table.grant_read_write_data(stock_find_lambda)
         stock_table.grant_read_write_data(stock_add_lambda)
         stock_table.grant_read_write_data(stock_subtract_lambda)
+        stock_table.grant_read_write_data(orders_item_add_lambda)
+        stock_table.grant_read_write_data(orders_item_remove_lambda)
 
         # Environment variables
         users_create_lambda.add_environment("USERS_TABLE", users_table.table_name)
@@ -283,6 +319,10 @@ class AwsLambdaStack(core.Stack):
         orders_create_lambda.add_environment("ORDERS_TABLE", orders_table.table_name)
         orders_remove_lambda.add_environment("ORDERS_TABLE", orders_table.table_name)
         orders_find_lambda.add_environment("ORDERS_TABLE", orders_table.table_name)
+        orders_item_add_lambda.add_environment("ORDERS_TABLE", orders_table.table_name)
+        orders_item_add_lambda.add_environment("STOCK_TABLE", stock_table.table_name)
+        orders_item_remove_lambda.add_environment("ORDERS_TABLE", orders_table.table_name)
+        orders_item_remove_lambda.add_environment("STOCK_TABLE", stock_table.table_name)
 
         stock_create_lambda.add_environment("STOCK_TABLE", stock_table.table_name)
         stock_find_lambda.add_environment("STOCK_TABLE", stock_table.table_name)
