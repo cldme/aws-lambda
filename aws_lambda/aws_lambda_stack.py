@@ -13,7 +13,7 @@ class AwsLambdaStack(core.Stack):
 
         # The code that defines your stack goes here
 
-        # DynamoDB
+        # DynamoDB tables
         users_table = aws_dynamodb.Table(
             self, 
             "users_table",
@@ -23,6 +23,17 @@ class AwsLambdaStack(core.Stack):
             ),
             billing_mode=aws_dynamodb.BillingMode.PAY_PER_REQUEST,
             table_name="users_table"
+        )
+
+        orders_table = aws_dynamodb.Table(
+            self, 
+            "orders_table",
+            partition_key=aws_dynamodb.Attribute(
+                name="id",
+                type=aws_dynamodb.AttributeType.STRING
+            ),
+            billing_mode=aws_dynamodb.BillingMode.PAY_PER_REQUEST,
+            table_name="orders_table"
         )
 
         # Lambdas
@@ -81,44 +92,75 @@ class AwsLambdaStack(core.Stack):
             function_name="users_credit_add_lambda"
         )
 
+        orders_create_lambda = aws_lambda.Function(
+            self,
+            "orders_create_lambda",
+            runtime=aws_lambda.Runtime.PYTHON_3_6,
+            # handler="orders_create/lambda_function.lambda_handler",
+            # code=ZipAssetCode(work_dir=work_dir, include=["./services/orders_create"], file_name="orders_create_lambda.zip"),
+            handler="lambda_function.lambda_handler",
+            code=aws_lambda.Code.asset("./services/orders_create"),
+            function_name="orders_create_lambda"
+        )
+
+        orders_remove_lambda = aws_lambda.Function(
+            self,
+            "orders_remove_lambda",
+            runtime=aws_lambda.Runtime.PYTHON_3_6,
+            # handler="orders_create/lambda_function.lambda_handler",
+            # code=ZipAssetCode(work_dir=work_dir, include=["./services/orders_create"], file_name="orders_create_lambda.zip"),
+            handler="lambda_function.lambda_handler",
+            code=aws_lambda.Code.asset("./services/orders_remove"),
+            function_name="orders_remove_lambda"
+        )
+
         # API Lambda integrations
         users_create_integration = aws_apigateway.LambdaIntegration(users_create_lambda)
         users_find_integration = aws_apigateway.LambdaIntegration(users_find_lambda)
         users_remove_integration = aws_apigateway.LambdaIntegration(users_remove_lambda)
         users_credit_subtract_integration = aws_apigateway.LambdaIntegration(users_credit_subtract_lambda)
         users_credit_add_integration = aws_apigateway.LambdaIntegration(users_credit_add_lambda)
-        
-        # orders_integration = aws_apigateway.LambdaIntegration(orders_lambda)
-        # stock_integration = aws_apigateway.LambdaIntegration(stock_lambda)
-        # payment_integration = aws_apigateway.LambdaIntegration(payment_lambda)
+
+        orders_create_integration = aws_apigateway.LambdaIntegration(orders_create_lambda)
+        orders_remove_integration = aws_apigateway.LambdaIntegration(orders_remove_lambda)
 
         # REST API
         api = aws_apigateway.RestApi(self, "webshop-api", rest_api_name="webshop-api")
 
-        ## USERS RESOURCE
+        # USERS RESOURCE
         users = api.root.add_resource("users")
+        users_credit = users.add_resource("credit")
 
+        # POST /users/create
         users_create = users.add_resource("create")
-        users_create.add_method("POST", users_create_integration)           # POST      /users/create
+        users_create.add_method("POST", users_create_integration)
 
-        users_remove = users.add_resource("remove")
-        users_remove_param = users_remove.add_resource("{user_id}")
-        users_remove_param.add_method("DELETE", users_remove_integration)   # DELETE    /users/remove/{user_id}
+        # DELETE /users/remove/{user_id}
+        users_remove = users.add_resource("remove").add_resource("{user_id}")
+        users_remove.add_method("DELETE", users_remove_integration)
 
-        users_find = users.add_resource("find")
-        users_find_param = users_find.add_resource("{user_id}")
-        users_find_param.add_method("GET", users_find_integration)          # FIND      /users/find/{user_id}
+        # FIND /users/find/{user_id}
+        users_find = users.add_resource("find").add_resource("{user_id}")
+        users_find.add_method("GET", users_find_integration)
 
-        users_credit = users.add_resource("credit")                     
-        users_credit_subtract = users_credit.add_resource("subtract")
-        users_credit_subtract_param = users_credit_subtract.add_resource("{user_id}")
-        users_credit_subtract_param_param = users_credit_subtract_param.add_resource("{amount}")
-        users_credit_subtract_param_param.add_method("POST", users_credit_subtract_integration)     # POST      /users/credit/subtract/{user_id}/{amount}
+        # POST /users/credit/subtract/{user_id}/{amount}
+        users_credit_subtract = users_credit.add_resource("subtract").add_resource("{user_id}").add_resource("{amount}")
+        users_credit_subtract.add_method("POST", users_credit_subtract_integration)
 
-        users_credit_add = users_credit.add_resource("add")
-        users_credit_add_param = users_credit_add.add_resource("{user_id}")
-        users_credit_add_param_param = users_credit_add_param.add_resource("{amount}")
-        users_credit_add_param_param.add_method("POST", users_credit_add_integration)               # POST      /users/credit/add/{user_id}/{amount}
+        # POST /users/credit/add/{user_id}/{amount}
+        users_credit_add = users_credit.add_resource("add").add_resource("{user_id}").add_resource("{amount}")
+        users_credit_add.add_method("POST", users_credit_add_integration)
+
+        # ORDERS RESOURCE
+        orders = api.root.add_resource("orders")
+
+        # POST /orders/create/{user_id}
+        orders_create = orders.add_resource("create").add_resource("{user_id}")
+        orders_create.add_method("POST", orders_create_integration)
+
+        # DELETE /orders/remove/{order_id}
+        orders_remove = orders.add_resource("remove").add_resource("{order_id}")
+        orders_remove.add_method("DELETE", orders_remove_integration)
         
         # Permissions
         users_table.grant_read_write_data(users_create_lambda)
@@ -127,9 +169,15 @@ class AwsLambdaStack(core.Stack):
         users_table.grant_read_write_data(users_credit_subtract_lambda)
         users_table.grant_read_write_data(users_credit_add_lambda)
 
+        orders_table.grant_read_write_data(orders_create_lambda)
+        orders_table.grant_read_write_data(orders_remove_lambda)
+
         # Environment variables
         users_create_lambda.add_environment("USERS_TABLE", users_table.table_name)
         users_remove_lambda.add_environment("USERS_TABLE", users_table.table_name)
         users_find_lambda.add_environment("USERS_TABLE", users_table.table_name)
         users_credit_subtract_lambda.add_environment("USERS_TABLE", users_table.table_name)
         users_credit_add_lambda.add_environment("USERS_TABLE", users_table.table_name)
+
+        orders_create_lambda.add_environment("ORDERS_TABLE", orders_table.table_name)
+        orders_remove_lambda.add_environment("ORDERS_TABLE", orders_table.table_name)
