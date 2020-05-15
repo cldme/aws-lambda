@@ -36,6 +36,17 @@ class AwsLambdaStack(core.Stack):
             table_name="orders_table"
         )
 
+        stock_table = aws_dynamodb.Table(
+            self, 
+            "stock_table",
+            partition_key=aws_dynamodb.Attribute(
+                name="id",
+                type=aws_dynamodb.AttributeType.STRING
+            ),
+            billing_mode=aws_dynamodb.BillingMode.PAY_PER_REQUEST,
+            table_name="stock_table"
+        )
+
         # Lambdas
         users_create_lambda = aws_lambda.Function(
             self,
@@ -125,6 +136,50 @@ class AwsLambdaStack(core.Stack):
             function_name="orders_find_lambda"
         )
 
+        stock_create_lambda = aws_lambda.Function(
+            self,
+            "stock_create_lambda",
+            runtime=aws_lambda.Runtime.PYTHON_3_6,
+            # handler="stock_create/lambda_function.lambda_handler",
+            # code=ZipAssetCode(work_dir=work_dir, include=["./services/stock_create"], file_name="stock_create_lambda.zip"),
+            handler="lambda_function.lambda_handler",
+            code=aws_lambda.Code.asset("./services/stock_create"),
+            function_name="stock_create_lambda"
+        )
+
+        stock_find_lambda = aws_lambda.Function(
+            self,
+            "stock_find_lambda",
+            runtime=aws_lambda.Runtime.PYTHON_3_6,
+            # handler="stock_find/lambda_function.lambda_handler",
+            # code=ZipAssetCode(work_dir=work_dir, include=["./services/stock_find"], file_name="stock_find_lambda.zip"),
+            handler="lambda_function.lambda_handler",
+            code=aws_lambda.Code.asset("./services/stock_find"),
+            function_name="stock_find_lambda"
+        )
+
+        stock_add_lambda = aws_lambda.Function(
+            self,
+            "stock_add_lambda",
+            runtime=aws_lambda.Runtime.PYTHON_3_6,
+            # handler="stock_add/lambda_function.lambda_handler",
+            # code=ZipAssetCode(work_dir=work_dir, include=["./services/stock_add"], file_name="stock_add_lambda.zip"),
+            handler="lambda_function.lambda_handler",
+            code=aws_lambda.Code.asset("./services/stock_add"),
+            function_name="stock_add_lambda"
+        )
+
+        stock_subtract_lambda = aws_lambda.Function(
+            self,
+            "stock_subtract_lambda",
+            runtime=aws_lambda.Runtime.PYTHON_3_6,
+            # handler="stock_subtract/lambda_function.lambda_handler",
+            # code=ZipAssetCode(work_dir=work_dir, include=["./services/stock_subtract"], file_name="stock_subtract_lambda.zip"),
+            handler="lambda_function.lambda_handler",
+            code=aws_lambda.Code.asset("./services/stock_subtract"),
+            function_name="stock_subtract_lambda"
+        )
+
         # API Lambda integrations
         users_create_integration = aws_apigateway.LambdaIntegration(users_create_lambda)
         users_find_integration = aws_apigateway.LambdaIntegration(users_find_lambda)
@@ -135,6 +190,11 @@ class AwsLambdaStack(core.Stack):
         orders_create_integration = aws_apigateway.LambdaIntegration(orders_create_lambda)
         orders_remove_integration = aws_apigateway.LambdaIntegration(orders_remove_lambda)
         orders_find_integration = aws_apigateway.LambdaIntegration(orders_find_lambda)
+
+        stock_create_integration = aws_apigateway.LambdaIntegration(stock_create_lambda)
+        stock_find_integration = aws_apigateway.LambdaIntegration(stock_find_lambda)
+        stock_add_integration = aws_apigateway.LambdaIntegration(stock_add_lambda)
+        stock_subtract_integration = aws_apigateway.LambdaIntegration(stock_subtract_lambda)
 
         # REST API
         api = aws_apigateway.RestApi(self, "webshop-api", rest_api_name="webshop-api")
@@ -177,6 +237,25 @@ class AwsLambdaStack(core.Stack):
         # GET /orders/find/{order_id}
         orders_find = orders.add_resource("find").add_resource("{order_id}")
         orders_find.add_method("GET", orders_find_integration)
+
+        # STOCK RESOURCE
+        stock = api.root.add_resource("stock")
+
+        # POST /stock/item/create/{price}
+        stock_create = stock.add_resource("item").add_resource("create").add_resource("{price}")
+        stock_create.add_method("POST", stock_create_integration)
+
+        # GET /stock/find/{item_id}
+        stock_find = stock.add_resource("find").add_resource("{item_id}")
+        stock_find.add_method("GET", stock_find_integration)
+
+        # POST /stock/add/{item_id}/{number}
+        stock_add = stock.add_resource("add").add_resource("{item_id}").add_resource("{number}")
+        stock_add.add_method("POST", stock_add_integration)
+
+        # POST /stock/subtract/{item_id}/{number}
+        stock_subtract = stock.add_resource("subtract").add_resource("{item_id}").add_resource("{number}")
+        stock_subtract.add_method("POST", stock_subtract_integration)
         
         # Permissions
         users_table.grant_read_write_data(users_create_lambda)
@@ -189,6 +268,11 @@ class AwsLambdaStack(core.Stack):
         orders_table.grant_read_write_data(orders_remove_lambda)
         orders_table.grant_read_write_data(orders_find_lambda)
 
+        stock_table.grant_read_write_data(stock_create_lambda)
+        stock_table.grant_read_write_data(stock_find_lambda)
+        stock_table.grant_read_write_data(stock_add_lambda)
+        stock_table.grant_read_write_data(stock_subtract_lambda)
+
         # Environment variables
         users_create_lambda.add_environment("USERS_TABLE", users_table.table_name)
         users_remove_lambda.add_environment("USERS_TABLE", users_table.table_name)
@@ -199,3 +283,8 @@ class AwsLambdaStack(core.Stack):
         orders_create_lambda.add_environment("ORDERS_TABLE", orders_table.table_name)
         orders_remove_lambda.add_environment("ORDERS_TABLE", orders_table.table_name)
         orders_find_lambda.add_environment("ORDERS_TABLE", orders_table.table_name)
+
+        stock_create_lambda.add_environment("STOCK_TABLE", stock_table.table_name)
+        stock_find_lambda.add_environment("STOCK_TABLE", stock_table.table_name)
+        stock_add_lambda.add_environment("STOCK_TABLE", stock_table.table_name)
+        stock_subtract_lambda.add_environment("STOCK_TABLE", stock_table.table_name)
