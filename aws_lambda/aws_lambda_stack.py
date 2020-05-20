@@ -202,6 +202,15 @@ class AwsLambdaStack(core.Stack):
             function_name="stock_subtract_lambda"
         )
 
+        payment_status_lambda = aws_lambda.Function(
+            self,
+            "payment_status_lambda",
+            runtime=aws_lambda.Runtime.PYTHON_3_6,
+            handler="lambda_function.lambda_handler",
+            code=aws_lambda.Code.asset("./services/payment_status"),
+            function_name="payment_status_lambda"
+        )
+
         # API Lambda integrations
         users_create_integration = aws_apigateway.LambdaIntegration(users_create_lambda)
         users_find_integration = aws_apigateway.LambdaIntegration(users_find_lambda)
@@ -219,6 +228,8 @@ class AwsLambdaStack(core.Stack):
         stock_find_integration = aws_apigateway.LambdaIntegration(stock_find_lambda)
         stock_add_integration = aws_apigateway.LambdaIntegration(stock_add_lambda)
         stock_subtract_integration = aws_apigateway.LambdaIntegration(stock_subtract_lambda)
+
+        payment_status_integration = aws_apigateway.LambdaIntegration(payment_status_lambda)
 
         # REST API
         api = aws_apigateway.RestApi(self, "webshop-api", rest_api_name="webshop-api")
@@ -288,6 +299,13 @@ class AwsLambdaStack(core.Stack):
         # POST /stock/subtract/{item_id}/{number}
         stock_subtract = stock.add_resource("subtract").add_resource("{item_id}").add_resource("{number}")
         stock_subtract.add_method("POST", stock_subtract_integration)
+
+        # PAYMENT RESOURCE
+        payment = api.root.add_resource("payment")
+
+        # GET /payment/status/{order_id}
+        payment_status = payment.add_resource("status").add_resource("{order_id}")
+        payment_status.add_method("GET", payment_status_integration)
         
         # Permissions
         users_table.grant_read_write_data(users_create_lambda)
@@ -301,6 +319,7 @@ class AwsLambdaStack(core.Stack):
         orders_table.grant_read_write_data(orders_find_lambda)
         orders_table.grant_read_write_data(orders_item_add_lambda)
         orders_table.grant_read_write_data(orders_item_remove_lambda)
+        orders_table.grant_read_write_data(payment_status_lambda)
 
         stock_table.grant_read_write_data(stock_create_lambda)
         stock_table.grant_read_write_data(stock_find_lambda)
@@ -328,3 +347,5 @@ class AwsLambdaStack(core.Stack):
         stock_find_lambda.add_environment("STOCK_TABLE", stock_table.table_name)
         stock_add_lambda.add_environment("STOCK_TABLE", stock_table.table_name)
         stock_subtract_lambda.add_environment("STOCK_TABLE", stock_table.table_name)
+
+        payment_status_lambda.add_environment("ORDERS_TABLE", orders_table.table_name)
