@@ -22,7 +22,8 @@ class AwsLambdaStack(core.Stack):
                 type=aws_dynamodb.AttributeType.STRING
             ),
             billing_mode=aws_dynamodb.BillingMode.PAY_PER_REQUEST,
-            table_name="users_table"
+            table_name="users_table",
+            removal_policy=core.RemovalPolicy.DESTROY
         )
 
         orders_table = aws_dynamodb.Table(
@@ -33,7 +34,8 @@ class AwsLambdaStack(core.Stack):
                 type=aws_dynamodb.AttributeType.STRING
             ),
             billing_mode=aws_dynamodb.BillingMode.PAY_PER_REQUEST,
-            table_name="orders_table"
+            table_name="orders_table",
+            removal_policy=core.RemovalPolicy.DESTROY
         )
 
         stock_table = aws_dynamodb.Table(
@@ -44,7 +46,8 @@ class AwsLambdaStack(core.Stack):
                 type=aws_dynamodb.AttributeType.STRING
             ),
             billing_mode=aws_dynamodb.BillingMode.PAY_PER_REQUEST,
-            table_name="stock_table"
+            table_name="stock_table",
+            removal_policy=core.RemovalPolicy.DESTROY
         )
 
         # Lambdas
