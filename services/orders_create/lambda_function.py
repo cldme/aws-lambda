@@ -25,7 +25,7 @@ def lambda_handler(event, context):
                 'total_cost': decimal.Decimal('0.0')
             }
         )
-        res = str(json.dumps(response, default=str))
+        res = json.dumps(response, default=str)
         statusCode = 200
         body = json.dumps({
             'order_id': order_id

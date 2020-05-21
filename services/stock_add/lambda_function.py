@@ -26,7 +26,7 @@ def lambda_handler(event, context):
             ExpressionAttributeValues={':stock': decimal.Decimal(new_stock)},
             ReturnValues="UPDATED_NEW"
         )
-        res = str(json.dumps(response, default=str))
+        res = json.dumps(response, default=str)
         print(f'stock successfully added: {res}')
         statusCode = 200
     except Exception as e:

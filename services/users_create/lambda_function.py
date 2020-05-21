@@ -16,7 +16,7 @@ def lambda_handler(event, context):
 
     try:
         response = users_table.put_item(Item = {'id': user_id, 'credit': decimal.Decimal('0.0')})
-        res = str(json.dumps(response, default=str))
+        res = json.dumps(response, default=str)
         statusCode = 200
         body = json.dumps({
             'user_id': user_id

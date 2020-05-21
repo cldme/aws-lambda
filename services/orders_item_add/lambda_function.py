@@ -33,7 +33,7 @@ def lambda_handler(event, context):
             ExpressionAttributeNames={'#tms': 'items'},
             ReturnValues="UPDATED_NEW"
         )
-        res = str(json.dumps(response, default=str))
+        res = json.dumps(response, default=str)
         print(f'item successfully added to order: {res}')
 
         statusCode = 200

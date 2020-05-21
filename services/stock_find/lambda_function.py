@@ -16,7 +16,7 @@ def lambda_handler(event, context):
 
     try:
         response = stock_table.get_item(Key={'id': item_id})
-        res = str(json.dumps(response, default=str))
+        res = json.dumps(response, default=str)
         item = response['Item']
         print(f'get_item result: {res}')
         statusCode = 200

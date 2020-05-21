@@ -16,7 +16,7 @@ def lambda_handler(event, context):
 
     try:
         response = orders_table.delete_item(Key={'id': order_id})
-        res = str(json.dumps(response, default=str))
+        res = json.dumps(response, default=str)
         print(f'order successfully removed: {res}')
         statusCode = 200
     except Exception as e:

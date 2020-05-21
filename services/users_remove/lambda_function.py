@@ -16,7 +16,7 @@ def lambda_handler(event, context):
 
     try:
         response = users_table.delete_item(Key={'id': user_id})
-        res = str(json.dumps(response, default=str))
+        res = json.dumps(response, default=str)
         print(f'user successfully removed: {res}')
         statusCode = 200
     except Exception as e:
