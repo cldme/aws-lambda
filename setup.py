@@ -26,7 +26,8 @@ setuptools.setup(
         "boto3",
         "botocore",
         "poetry",
-        "docker"
+        "docker",
+        "pylint"
     ],
 
     python_requires=">=3.6",
