@@ -235,7 +235,7 @@ class AwsLambdaStack(core.Stack):
         users_remove = users.add_resource("remove").add_resource("{user_id}")
         users_remove.add_method("DELETE", users_remove_integration)
 
-        # FIND /users/find/{user_id}
+        # GET /users/find/{user_id}
         users_find = users.add_resource("find").add_resource("{user_id}")
         users_find.add_method("GET", users_find_integration)
 
@@ -266,7 +266,7 @@ class AwsLambdaStack(core.Stack):
         orders_item_add = orders.add_resource("addItem").add_resource("{order_id}").add_resource("{item_id}")
         orders_item_add.add_method("POST", orders_item_add_integration)
 
-        # POST /orders/removeItem/{order_id}/{item_id}
+        # DELETE /orders/removeItem/{order_id}/{item_id}
         orders_item_remove = orders.add_resource("removeItem").add_resource("{order_id}").add_resource("{item_id}")
         orders_item_remove.add_method("DELETE", orders_item_remove_integration)
 

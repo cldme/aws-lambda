@@ -3,25 +3,12 @@ import json
 import uuid
 import boto3
 import decimal
-from boto3.dynamodb.conditions import Key, Attr
-from botocore.exceptions import ClientError
 
 # get the service resource
 dynamodb = boto3.resource('dynamodb')
 # get the users table
 ORDERS_TABLE = os.environ['ORDERS_TABLE']
 STOCK_TABLE = os.environ['STOCK_TABLE']
-
-# helper class to convert a DynamoDB item to JSON
-# for details see: https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GettingStarted.Python.03.html
-class DecimalEncoder(json.JSONEncoder):
-    def default(self, o):
-        if isinstance(o, decimal.Decimal):
-            if abs(o) % 1 > 0:
-                return float(o)
-            else:
-                return int(o)
-        return super(DecimalEncoder, self).default(o)
 
 def lambda_handler(event, context):
     
@@ -36,8 +23,8 @@ def lambda_handler(event, context):
         order_items = order_object['Item']['items']
         order_items.append(item_id)
 
-        print(f'get_item order result: {str(json.dumps(order_object, cls=DecimalEncoder))}')
-        print(f'get_item stock result: {str(json.dumps(stock_object, cls=DecimalEncoder))}')
+        print(f'get_item order result: {str(json.dumps(order_object, default=str))}')
+        print(f'get_item stock result: {str(json.dumps(stock_object, default=str))}')
 
         response = orders_table.update_item(
             Key={'id': order_id},
@@ -46,11 +33,11 @@ def lambda_handler(event, context):
             ExpressionAttributeNames={'#tms': 'items'},
             ReturnValues="UPDATED_NEW"
         )
-        res = str(json.dumps(response, cls=DecimalEncoder))
+        res = json.dumps(response, default=str)
         print(f'item successfully added to order: {res}')
 
         statusCode = 200
-    except ClientError as e:
+    except Exception as e:
         print(f'get_item error: {e}')
         statusCode = 400
 
