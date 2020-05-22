@@ -28,8 +28,11 @@ def lambda_handler(event, context):
 
         response = orders_table.update_item(
             Key={'id': order_id},
-            UpdateExpression="set #tms = :items",
-            ExpressionAttributeValues={':items': order_items},
+            UpdateExpression="SET #tms = :items ADD total_cost :negativeCost",
+            ExpressionAttributeValues={
+                ':items': order_items,
+                ':negativeCost': -stock_object['Item']['price']
+            },
             ExpressionAttributeNames={'#tms': 'items'},
             ReturnValues="UPDATED_NEW"
         )
