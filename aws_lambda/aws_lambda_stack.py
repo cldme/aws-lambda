@@ -3,7 +3,7 @@ from aws_cdk import core
 from aws_cdk import aws_lambda
 from aws_cdk import aws_dynamodb
 from aws_cdk import aws_apigateway
-from aws_cdk_lambda_asset.zip_asset_code import ZipAssetCode
+
 
 class AwsLambdaStack(core.Stack):
 
@@ -55,10 +55,8 @@ class AwsLambdaStack(core.Stack):
             self,
             "users_create_lambda",
             runtime=aws_lambda.Runtime.PYTHON_3_6,
-            # handler="users_create/lambda_function.lambda_handler",
-            # code=ZipAssetCode(work_dir=work_dir, include=["./services/users_create"], file_name="users_create_lambda.zip"),
             handler="lambda_function.lambda_handler",
-            code=aws_lambda.Code.asset("./services/users_create"),
+            code=aws_lambda.Code.asset("./services/users/create"),
             function_name="users_create_lambda"
         )
 
@@ -66,10 +64,8 @@ class AwsLambdaStack(core.Stack):
             self,
             "users_find_lambda",
             runtime=aws_lambda.Runtime.PYTHON_3_6,
-            # handler="users_find/lambda_function.lambda_handler",
-            # code=ZipAssetCode(work_dir=work_dir, include=["./services/users_find"], file_name="users_find_lambda.zip"),
             handler="lambda_function.lambda_handler",
-            code=aws_lambda.Code.asset("./services/users_find"),
+            code=aws_lambda.Code.asset("./services/users/find"),
             function_name="users_find_lambda"
         )
 
@@ -77,10 +73,8 @@ class AwsLambdaStack(core.Stack):
             self,
             "users_remove_lambda",
             runtime=aws_lambda.Runtime.PYTHON_3_6,
-            # handler="users_remove/lambda_function.lambda_handler",
-            # code=ZipAssetCode(work_dir=work_dir, include=["./services/users_remove"], file_name="users_remove_lambda.zip"),
             handler="lambda_function.lambda_handler",
-            code=aws_lambda.Code.asset("./services/users_remove"),
+            code=aws_lambda.Code.asset("./services/users/remove"),
             function_name="users_remove_lambda"
         )
 
@@ -88,10 +82,8 @@ class AwsLambdaStack(core.Stack):
             self,
             "users_credit_subtract_lambda",
             runtime=aws_lambda.Runtime.PYTHON_3_6,
-            # handler="users_credit_subtract/lambda_function.lambda_handler",
-            # code=ZipAssetCode(work_dir=work_dir, include=["./services/users_credit_subtract"], file_name="users_credit_subtract_lambda.zip"),
             handler="lambda_function.lambda_handler",
-            code=aws_lambda.Code.asset("./services/users_credit_subtract"),
+            code=aws_lambda.Code.asset("./services/users/credit_subtract"),
             function_name="users_credit_subtract_lambda"
         )
 
@@ -99,10 +91,8 @@ class AwsLambdaStack(core.Stack):
             self,
             "users_credit_add_lambda",
             runtime=aws_lambda.Runtime.PYTHON_3_6,
-            # handler="users_credit_add/lambda_function.lambda_handler",
-            # code=ZipAssetCode(work_dir=work_dir, include=["./services/users_credit_add"], file_name="users_credit_add_lambda.zip"),
             handler="lambda_function.lambda_handler",
-            code=aws_lambda.Code.asset("./services/users_credit_add"),
+            code=aws_lambda.Code.asset("./services/users/credit_add"),
             function_name="users_credit_add_lambda"
         )
 
@@ -110,10 +100,8 @@ class AwsLambdaStack(core.Stack):
             self,
             "orders_create_lambda",
             runtime=aws_lambda.Runtime.PYTHON_3_6,
-            # handler="orders_create/lambda_function.lambda_handler",
-            # code=ZipAssetCode(work_dir=work_dir, include=["./services/orders_create"], file_name="orders_create_lambda.zip"),
             handler="lambda_function.lambda_handler",
-            code=aws_lambda.Code.asset("./services/orders_create"),
+            code=aws_lambda.Code.asset("./services/orders/create"),
             function_name="orders_create_lambda"
         )
 
@@ -121,10 +109,8 @@ class AwsLambdaStack(core.Stack):
             self,
             "orders_remove_lambda",
             runtime=aws_lambda.Runtime.PYTHON_3_6,
-            # handler="orders_remove/lambda_function.lambda_handler",
-            # code=ZipAssetCode(work_dir=work_dir, include=["./services/orders_remove"], file_name="orders_remove_lambda.zip"),
             handler="lambda_function.lambda_handler",
-            code=aws_lambda.Code.asset("./services/orders_remove"),
+            code=aws_lambda.Code.asset("./services/orders/remove"),
             function_name="orders_remove_lambda"
         )
 
@@ -132,10 +118,8 @@ class AwsLambdaStack(core.Stack):
             self,
             "orders_find_lambda",
             runtime=aws_lambda.Runtime.PYTHON_3_6,
-            # handler="orders_find/lambda_function.lambda_handler",
-            # code=ZipAssetCode(work_dir=work_dir, include=["./services/orders_find"], file_name="orders_find_lambda.zip"),
             handler="lambda_function.lambda_handler",
-            code=aws_lambda.Code.asset("./services/orders_find"),
+            code=aws_lambda.Code.asset("./services/orders/find"),
             function_name="orders_find_lambda"
         )
 
@@ -143,10 +127,8 @@ class AwsLambdaStack(core.Stack):
             self,
             "orders_item_add_lambda",
             runtime=aws_lambda.Runtime.PYTHON_3_6,
-            # handler="orders_item_add/lambda_function.lambda_handler",
-            # code=ZipAssetCode(work_dir=work_dir, include=["./services/orders_item_add"], file_name="orders_item_add_lambda.zip"),
             handler="lambda_function.lambda_handler",
-            code=aws_lambda.Code.asset("./services/orders_item_add"),
+            code=aws_lambda.Code.asset("./services/orders/item_add"),
             function_name="orders_item_add_lambda"
         )
 
@@ -154,10 +136,8 @@ class AwsLambdaStack(core.Stack):
             self,
             "orders_item_remove_lambda",
             runtime=aws_lambda.Runtime.PYTHON_3_6,
-            # handler="orders_item_remove/lambda_function.lambda_handler",
-            # code=ZipAssetCode(work_dir=work_dir, include=["./services/orders_item_remove"], file_name="orders_item_remove_lambda.zip"),
             handler="lambda_function.lambda_handler",
-            code=aws_lambda.Code.asset("./services/orders_item_remove"),
+            code=aws_lambda.Code.asset("./services/orders/item_remove"),
             function_name="orders_item_remove_lambda"
         )
 
@@ -165,10 +145,8 @@ class AwsLambdaStack(core.Stack):
             self,
             "stock_create_lambda",
             runtime=aws_lambda.Runtime.PYTHON_3_6,
-            # handler="stock_create/lambda_function.lambda_handler",
-            # code=ZipAssetCode(work_dir=work_dir, include=["./services/stock_create"], file_name="stock_create_lambda.zip"),
             handler="lambda_function.lambda_handler",
-            code=aws_lambda.Code.asset("./services/stock_create"),
+            code=aws_lambda.Code.asset("./services/stock/create"),
             function_name="stock_create_lambda"
         )
 
@@ -176,10 +154,8 @@ class AwsLambdaStack(core.Stack):
             self,
             "stock_find_lambda",
             runtime=aws_lambda.Runtime.PYTHON_3_6,
-            # handler="stock_find/lambda_function.lambda_handler",
-            # code=ZipAssetCode(work_dir=work_dir, include=["./services/stock_find"], file_name="stock_find_lambda.zip"),
             handler="lambda_function.lambda_handler",
-            code=aws_lambda.Code.asset("./services/stock_find"),
+            code=aws_lambda.Code.asset("./services/stock/find"),
             function_name="stock_find_lambda"
         )
 
@@ -187,10 +163,8 @@ class AwsLambdaStack(core.Stack):
             self,
             "stock_add_lambda",
             runtime=aws_lambda.Runtime.PYTHON_3_6,
-            # handler="stock_add/lambda_function.lambda_handler",
-            # code=ZipAssetCode(work_dir=work_dir, include=["./services/stock_add"], file_name="stock_add_lambda.zip"),
             handler="lambda_function.lambda_handler",
-            code=aws_lambda.Code.asset("./services/stock_add"),
+            code=aws_lambda.Code.asset("./services/stock/add"),
             function_name="stock_add_lambda"
         )
 
@@ -198,10 +172,8 @@ class AwsLambdaStack(core.Stack):
             self,
             "stock_subtract_lambda",
             runtime=aws_lambda.Runtime.PYTHON_3_6,
-            # handler="stock_subtract/lambda_function.lambda_handler",
-            # code=ZipAssetCode(work_dir=work_dir, include=["./services/stock_subtract"], file_name="stock_subtract_lambda.zip"),
             handler="lambda_function.lambda_handler",
-            code=aws_lambda.Code.asset("./services/stock_subtract"),
+            code=aws_lambda.Code.asset("./services/stock/subtract"),
             function_name="stock_subtract_lambda"
         )
 
@@ -210,7 +182,7 @@ class AwsLambdaStack(core.Stack):
             "payment_status_lambda",
             runtime=aws_lambda.Runtime.PYTHON_3_6,
             handler="lambda_function.lambda_handler",
-            code=aws_lambda.Code.asset("./services/payment_status"),
+            code=aws_lambda.Code.asset("./services/payment/status"),
             function_name="payment_status_lambda"
         )
 
@@ -219,7 +191,7 @@ class AwsLambdaStack(core.Stack):
             "payment_pay_lambda",
             runtime=aws_lambda.Runtime.PYTHON_3_6,
             handler="lambda_function.lambda_handler",
-            code=aws_lambda.Code.asset("./services/payment_pay"),
+            code=aws_lambda.Code.asset("./services/payment/pay"),
             function_name="payment_pay_lambda"
         )
 
@@ -228,7 +200,7 @@ class AwsLambdaStack(core.Stack):
             "payment_cancel_lambda",
             runtime=aws_lambda.Runtime.PYTHON_3_6,
             handler="lambda_function.lambda_handler",
-            code=aws_lambda.Code.asset("./services/payment_cancel"),
+            code=aws_lambda.Code.asset("./services/payment/cancel"),
             function_name="payment_cancel_lambda"
         )
 
