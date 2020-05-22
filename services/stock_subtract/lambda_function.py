@@ -19,7 +19,7 @@ def lambda_handler(event, context):
         stock_object = stock_table.get_item(Key={'id': item_id})
         current_stock = stock_object['Item']['stock']
         new_stock = current_stock - amount
-        if new_stock > 0:
+        if new_stock >= 0:
             response = stock_table.update_item(
                 Key={'id': item_id},
                 UpdateExpression="set stock = :stock",
