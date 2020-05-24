@@ -19,7 +19,10 @@ def lambda_handler(event, context):
         user_object = users_table.get_item(Key={'id': user_id})
         current_credit = user_object['Item']['credit']
         new_credit = current_credit - amount
-        
+
+        if new_credit < 0:
+            raise ValueError('user credit can not be negative!')
+
         response = users_table.update_item(
             Key={'id': user_id},
             UpdateExpression="set credit = :credit",

@@ -21,6 +21,7 @@ def lambda_handler(event, context):
         order_object = orders_table.get_item(Key={'id': order_id})
         stock_object = stock_table.get_item(Key={'id': item_id})
         order_items = order_object['Item']['items']
+        total_cost = order_object['Item']['total_cost'] - stock_object['Item']['price']
         order_items.remove(item_id)
 
         print(f'get_item order result: {str(json.dumps(order_object, default=str))}')
@@ -28,9 +29,15 @@ def lambda_handler(event, context):
 
         response = orders_table.update_item(
             Key={'id': order_id},
-            UpdateExpression="set #tms = :items",
-            ExpressionAttributeValues={':items': order_items},
-            ExpressionAttributeNames={'#tms': 'items'},
+            UpdateExpression="SET #items = :items, #cost = :cost",
+            ExpressionAttributeValues={
+                ':items': order_items,
+                ':cost': total_cost
+            },
+            ExpressionAttributeNames={
+                '#items': 'items',
+                '#cost': 'total_cost'
+            },
             ReturnValues="UPDATED_NEW"
         )
         res = json.dumps(response, default=str)

@@ -20,6 +20,9 @@ def lambda_handler(event, context):
         current_stock = stock_object['Item']['stock']
         new_stock = current_stock - amount
 
+        if new_stock < 0:
+            raise ValueError('stock can not be negative!')
+
         response = stock_table.update_item(
             Key={'id': item_id},
             UpdateExpression="set stock = :stock",
