@@ -83,12 +83,26 @@ class OrdersService(core.Construct):
         self.table.grant_read_write_data(item_remove_lambda)
         stock.table.grant_read_write_data(item_remove_lambda)
 
+        self.checkout_lambda = aws_lambda.Function(
+            self,
+            "orders_checkout_lambda",
+            runtime=aws_lambda.Runtime.PYTHON_3_6,
+            handler="lambda_function.lambda_handler",
+            code=aws_lambda.Code.asset("./services/orders/checkout"),
+            function_name="orders_checkout_lambda"
+        )
+        self.checkout_lambda.add_environment("ORDERS_TABLE", self.table.table_name)
+        self.table.grant_read_write_data(self.checkout_lambda)
+        stock.add_lambda.grant_invoke(self.checkout_lambda)
+        stock.subtract_lambda.grant_invoke(self.checkout_lambda)
+
         # API Gateway Lambda integrations
         create_integration = aws_apigateway.LambdaIntegration(create_lambda)
         remove_integration = aws_apigateway.LambdaIntegration(remove_lambda)
         find_integration = aws_apigateway.LambdaIntegration(find_lambda)
         item_add_integration = aws_apigateway.LambdaIntegration(item_add_lambda)
         item_remove_integration = aws_apigateway.LambdaIntegration(item_remove_lambda)
+        checkout_integration = aws_apigateway.LambdaIntegration(self.checkout_lambda)
 
         # API Gateway
         # POST /orders/create/{user_id}
@@ -110,3 +124,7 @@ class OrdersService(core.Construct):
         # DELETE /orders/removeItem/{order_id}/{item_id}
         item_remove = resource.add_resource("removeItem").add_resource("{order_id}").add_resource("{item_id}")
         item_remove.add_method("DELETE", item_remove_integration)
+
+        # POST /orders/checkout/{order_id}
+        checkout = resource.add_resource("checkout").add_resource("{order_id}")
+        checkout.add_method("POST", checkout_integration)
