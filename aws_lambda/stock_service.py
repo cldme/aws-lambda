@@ -44,7 +44,7 @@ class StockService(core.Construct):
         find_lambda.add_environment("STOCK_TABLE", self.table.table_name)
         self.table.grant_read_write_data(find_lambda)
 
-        add_lambda = aws_lambda.Function(
+        self.add_lambda = aws_lambda.Function(
             self,
             "stock_add_lambda",
             runtime=aws_lambda.Runtime.PYTHON_3_6,
@@ -52,10 +52,10 @@ class StockService(core.Construct):
             code=aws_lambda.Code.asset("./services/stock/add"),
             function_name="stock_add_lambda"
         )
-        add_lambda.add_environment("STOCK_TABLE", self.table.table_name)
-        self.table.grant_read_write_data(add_lambda)
+        self.add_lambda.add_environment("STOCK_TABLE", self.table.table_name)
+        self.table.grant_read_write_data(self.add_lambda)
 
-        subtract_lambda = aws_lambda.Function(
+        self.subtract_lambda = aws_lambda.Function(
             self,
             "stock_subtract_lambda",
             runtime=aws_lambda.Runtime.PYTHON_3_6,
@@ -63,14 +63,14 @@ class StockService(core.Construct):
             code=aws_lambda.Code.asset("./services/stock/subtract"),
             function_name="stock_subtract_lambda"
         )
-        subtract_lambda.add_environment("STOCK_TABLE", self.table.table_name)
-        self.table.grant_read_write_data(subtract_lambda)
+        self.subtract_lambda.add_environment("STOCK_TABLE", self.table.table_name)
+        self.table.grant_read_write_data(self.subtract_lambda)
 
         # API Gateway integration
         create_integration = aws_apigateway.LambdaIntegration(create_lambda)
         find_integration = aws_apigateway.LambdaIntegration(find_lambda)
-        add_integration = aws_apigateway.LambdaIntegration(add_lambda)
-        subtract_integration = aws_apigateway.LambdaIntegration(subtract_lambda)
+        add_integration = aws_apigateway.LambdaIntegration(self.add_lambda)
+        subtract_integration = aws_apigateway.LambdaIntegration(self.subtract_lambda)
 
         # API Gateway
         # POST /stock/item/create/{price}
