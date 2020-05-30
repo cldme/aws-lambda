@@ -36,14 +36,18 @@ def lambda_handler(event, context):
         print(f'making payment via calling the payment service')
         payload = {
             'pathParameters': {
+                'user_id': order['user_id'],
                 'order_id': order_id,
                 'amount': str(order['total_cost'])
             }
         }
         res = invoke_lambda('payment_pay_lambda', payload)
+        # get result object from lambda call
+        res = json.loads(res['Payload'].read())
+        print(f'payment service result: {res}')
 
-        if res['StatusCode'] != 200:
-            raise ValueError('error thrown while making the payment | status: ' + res['StatusCode'])
+        if res['statusCode'] != 200:
+            raise ValueError('error thrown while making the payment')
 
         print(f'done making the payment with result: {res}')
 
@@ -60,12 +64,24 @@ def lambda_handler(event, context):
                 }
             }
             res = invoke_lambda('stock_subtract_lambda', payload)
+            # get result object from lambda call
+            res = json.loads(res['Payload'].read())
+            print(f'stock subtract service result: {res}')
 
             # in case of failure rollback previous actions
-            if res['StatusCode'] != 200:
+            if res['statusCode'] != 200:
                 print(f'failed updating stock with result: {res}')
                 print(f'rolling back now!')
-                # TODO: rollback user's payment
+                # rollback user's payment
+                payload = {
+                    'pathParameters': {
+                        'user_id': order['user_id'],
+                        'order_id': order_id
+                    }
+                }
+                # invoke async lambda (no need to wait for results here)
+                res = invoke_lambda('payment_cancel_lambda', payload, 'Event')
+                # rollback stock subtractions
                 for q in queue:
                     # invoke async lambda (no need to wait for results here)
                     res = invoke_lambda('stock_add_lambda', q, 'Event')
