@@ -2,7 +2,6 @@ import json
 import os
 
 import boto3
-from botocore.exceptions import ClientError
 
 dynamodb = boto3.resource('dynamodb')
 ORDERS_TABLE = os.environ['ORDERS_TABLE']
@@ -19,7 +18,7 @@ def lambda_handler(event, context):
         body = json.dumps({
             'paid': item['paid'],
         })
-    except ClientError as e:
+    except Exception as e:
         print(f'status error: {e}')
         statusCode = 400
         body = json.dumps({})
