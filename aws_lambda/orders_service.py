@@ -30,6 +30,8 @@ class OrdersService(core.Construct):
             runtime=aws_lambda.Runtime.PYTHON_3_6,
             handler="lambda_function.lambda_handler",
             code=aws_lambda.Code.asset("./services/orders/create"),
+            memory_size=256,
+            timeout=core.Duration.seconds(10),
             function_name="orders_create_lambda"
         )
         create_lambda.add_environment("ORDERS_TABLE", self.table.table_name)
@@ -41,6 +43,8 @@ class OrdersService(core.Construct):
             runtime=aws_lambda.Runtime.PYTHON_3_6,
             handler="lambda_function.lambda_handler",
             code=aws_lambda.Code.asset("./services/orders/remove"),
+            memory_size=256,
+            timeout=core.Duration.seconds(10),
             function_name="orders_remove_lambda"
         )
         remove_lambda.add_environment("ORDERS_TABLE", self.table.table_name)
@@ -52,6 +56,8 @@ class OrdersService(core.Construct):
             runtime=aws_lambda.Runtime.PYTHON_3_6,
             handler="lambda_function.lambda_handler",
             code=aws_lambda.Code.asset("./services/orders/find"),
+            memory_size=256,
+            timeout=core.Duration.seconds(10),
             function_name="orders_find_lambda"
         )
         find_lambda.add_environment("ORDERS_TABLE", self.table.table_name)
@@ -63,6 +69,8 @@ class OrdersService(core.Construct):
             runtime=aws_lambda.Runtime.PYTHON_3_6,
             handler="lambda_function.lambda_handler",
             code=aws_lambda.Code.asset("./services/orders/item_add"),
+            memory_size=256,
+            timeout=core.Duration.seconds(10),
             function_name="orders_item_add_lambda"
         )
         item_add_lambda.add_environment("ORDERS_TABLE", self.table.table_name)
@@ -76,6 +84,8 @@ class OrdersService(core.Construct):
             runtime=aws_lambda.Runtime.PYTHON_3_6,
             handler="lambda_function.lambda_handler",
             code=aws_lambda.Code.asset("./services/orders/item_remove"),
+            memory_size=256,
+            timeout=core.Duration.seconds(10),
             function_name="orders_item_remove_lambda"
         )
         item_remove_lambda.add_environment("ORDERS_TABLE", self.table.table_name)
@@ -89,6 +99,8 @@ class OrdersService(core.Construct):
             runtime=aws_lambda.Runtime.PYTHON_3_6,
             handler="lambda_function.lambda_handler",
             code=aws_lambda.Code.asset("./services/orders/checkout"),
+            memory_size=256,
+            timeout=core.Duration.seconds(60),
             function_name="orders_checkout_lambda"
         )
         self.checkout_lambda.add_environment("ORDERS_TABLE", self.table.table_name)

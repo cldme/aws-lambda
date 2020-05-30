@@ -17,6 +17,8 @@ class PaymentService(core.Construct):
             runtime=aws_lambda.Runtime.PYTHON_3_6,
             handler="lambda_function.lambda_handler",
             code=aws_lambda.Code.asset("./services/payment/status"),
+            memory_size=256,
+            timeout=core.Duration.seconds(10),
             function_name="payment_status_lambda"
         )
         status_lambda.add_environment("ORDERS_TABLE", orders.table.table_name)
@@ -28,6 +30,8 @@ class PaymentService(core.Construct):
             runtime=aws_lambda.Runtime.PYTHON_3_6,
             handler="lambda_function.lambda_handler",
             code=aws_lambda.Code.asset("./services/payment/pay"),
+            memory_size=256,
+            timeout=core.Duration.seconds(60),
             function_name="payment_pay_lambda"
         )
         pay_lambda.add_environment("ORDERS_TABLE", orders.table.table_name)
@@ -42,6 +46,8 @@ class PaymentService(core.Construct):
             runtime=aws_lambda.Runtime.PYTHON_3_6,
             handler="lambda_function.lambda_handler",
             code=aws_lambda.Code.asset("./services/payment/cancel"),
+            memory_size=256,
+            timeout=core.Duration.seconds(60),
             function_name="payment_cancel_lambda"
         )
         cancel_lambda.add_environment("ORDERS_TABLE", orders.table.table_name)
