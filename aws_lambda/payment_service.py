@@ -17,6 +17,8 @@ class PaymentService(core.Construct):
             runtime=aws_lambda.Runtime.PYTHON_3_6,
             handler="lambda_function.lambda_handler",
             code=aws_lambda.Code.asset("./services/payment/status"),
+            memory_size=256,
+            timeout=core.Duration.seconds(10),
             function_name="payment_status_lambda"
         )
         status_lambda.add_environment("ORDERS_TABLE", orders.table.table_name)
@@ -28,12 +30,15 @@ class PaymentService(core.Construct):
             runtime=aws_lambda.Runtime.PYTHON_3_6,
             handler="lambda_function.lambda_handler",
             code=aws_lambda.Code.asset("./services/payment/pay"),
+            memory_size=256,
+            timeout=core.Duration.seconds(60),
             function_name="payment_pay_lambda"
         )
         pay_lambda.add_environment("ORDERS_TABLE", orders.table.table_name)
         pay_lambda.add_environment("USERS_TABLE", users.table.table_name)
         orders.table.grant_read_write_data(pay_lambda)
         users.table.grant_read_write_data(pay_lambda)
+        pay_lambda.grant_invoke(orders.checkout_lambda)
 
         cancel_lambda = aws_lambda.Function(
             self,
@@ -41,12 +46,15 @@ class PaymentService(core.Construct):
             runtime=aws_lambda.Runtime.PYTHON_3_6,
             handler="lambda_function.lambda_handler",
             code=aws_lambda.Code.asset("./services/payment/cancel"),
+            memory_size=256,
+            timeout=core.Duration.seconds(60),
             function_name="payment_cancel_lambda"
         )
         cancel_lambda.add_environment("ORDERS_TABLE", orders.table.table_name)
         cancel_lambda.add_environment("USERS_TABLE", users.table.table_name)
         orders.table.grant_read_write_data(cancel_lambda)
         users.table.grant_read_write_data(cancel_lambda)
+        cancel_lambda.grant_invoke(orders.checkout_lambda)
 
         # API Gateway integration
         status_integration = aws_apigateway.LambdaIntegration(status_lambda)

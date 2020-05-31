@@ -28,6 +28,8 @@ class UsersService(core.Construct):
             runtime=aws_lambda.Runtime.PYTHON_3_6,
             handler="lambda_function.lambda_handler",
             code=aws_lambda.Code.asset("./services/users/create"),
+            memory_size=256,
+            timeout=core.Duration.seconds(10),
             function_name="users_create_lambda"
         )
         create_lambda.add_environment("USERS_TABLE", self.table.table_name)
@@ -39,6 +41,8 @@ class UsersService(core.Construct):
             runtime=aws_lambda.Runtime.PYTHON_3_6,
             handler="lambda_function.lambda_handler",
             code=aws_lambda.Code.asset("./services/users/find"),
+            memory_size=256,
+            timeout=core.Duration.seconds(10),
             function_name="users_find_lambda"
         )
         find_lambda.add_environment("USERS_TABLE", self.table.table_name)
@@ -50,6 +54,8 @@ class UsersService(core.Construct):
             runtime=aws_lambda.Runtime.PYTHON_3_6,
             handler="lambda_function.lambda_handler",
             code=aws_lambda.Code.asset("./services/users/remove"),
+            memory_size=256,
+            timeout=core.Duration.seconds(10),
             function_name="users_remove_lambda"
         )
         remove_lambda.add_environment("USERS_TABLE", self.table.table_name)
@@ -61,6 +67,8 @@ class UsersService(core.Construct):
             runtime=aws_lambda.Runtime.PYTHON_3_6,
             handler="lambda_function.lambda_handler",
             code=aws_lambda.Code.asset("./services/users/credit_subtract"),
+            memory_size=256,
+            timeout=core.Duration.seconds(10),
             function_name="users_credit_subtract_lambda"
         )
         credit_subtract_lambda.add_environment("USERS_TABLE", self.table.table_name)
@@ -72,6 +80,8 @@ class UsersService(core.Construct):
             runtime=aws_lambda.Runtime.PYTHON_3_6,
             handler="lambda_function.lambda_handler",
             code=aws_lambda.Code.asset("./services/users/credit_add"),
+            memory_size=256,
+            timeout=core.Duration.seconds(10),
             function_name="users_credit_add_lambda"
         )
         credit_add_lambda.add_environment("USERS_TABLE", self.table.table_name)
