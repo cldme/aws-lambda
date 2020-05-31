@@ -35,7 +35,7 @@ class StockService(core.Construct):
         create_lambda.add_environment("STOCK_TABLE", self.table.table_name)
         self.table.grant_read_write_data(create_lambda)
 
-        find_lambda = aws_lambda.Function(
+        self.find_lambda = aws_lambda.Function(
             self,
             "stock_find_lambda",
             runtime=aws_lambda.Runtime.PYTHON_3_6,
@@ -45,8 +45,8 @@ class StockService(core.Construct):
             timeout=core.Duration.seconds(10),
             function_name="stock_find_lambda"
         )
-        find_lambda.add_environment("STOCK_TABLE", self.table.table_name)
-        self.table.grant_read_write_data(find_lambda)
+        self.find_lambda.add_environment("STOCK_TABLE", self.table.table_name)
+        self.table.grant_read_write_data(self.find_lambda)
 
         self.add_lambda = aws_lambda.Function(
             self,
@@ -76,7 +76,7 @@ class StockService(core.Construct):
 
         # API Gateway integration
         create_integration = aws_apigateway.LambdaIntegration(create_lambda)
-        find_integration = aws_apigateway.LambdaIntegration(find_lambda)
+        find_integration = aws_apigateway.LambdaIntegration(self.find_lambda)
         add_integration = aws_apigateway.LambdaIntegration(self.add_lambda)
         subtract_integration = aws_apigateway.LambdaIntegration(self.subtract_lambda)
 
