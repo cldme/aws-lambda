@@ -1,8 +1,9 @@
 from aws_cdk import aws_apigateway
 from aws_cdk import aws_lambda
 from aws_cdk import core
-from orders_service import OrdersService
-from users_service import UsersService
+
+from .orders_service import OrdersService
+from .users_service import UsersService
 
 
 class PaymentService(core.Construct):

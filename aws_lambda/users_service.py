@@ -1,7 +1,7 @@
-from aws_cdk import core
-from aws_cdk import aws_lambda
-from aws_cdk import aws_dynamodb
 from aws_cdk import aws_apigateway
+from aws_cdk import aws_dynamodb
+from aws_cdk import aws_lambda
+from aws_cdk import core
 
 
 class UsersService(core.Construct):

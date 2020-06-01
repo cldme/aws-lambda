@@ -11,8 +11,10 @@ keywords = ["AWS", "CDK", "Lambda", "Construct"]
 [tool.poetry.dependencies]
 python = "^3.7"
 docker = "^4.0"
-"aws-cdk.core" = "^1.40.0"
-"aws-cdk.aws-lambda" = "^1.40.0"
+"aws-cdk.core" = "^1.42.0"
+"aws-cdk.aws-lambda" = "^1.42.0"
+"aws-cdk.aws-apigateway" = "^1.42.0"
+"aws-cdk.aws-dynamodb" = "^1.42.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.1"
