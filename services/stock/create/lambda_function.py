@@ -6,19 +6,17 @@ import decimal
 
 # get the service resource
 dynamodb = boto3.resource('dynamodb')
-# get the users table
-STOCK_TABLE = os.environ['STOCK_TABLE']
+stock_table = dynamodb.Table(os.environ['STOCK_TABLE'])
+
 
 def lambda_handler(event, context):
-    
-    stock_table = dynamodb.Table(STOCK_TABLE)
     price = event['pathParameters']['price']
     item_id = str(uuid.uuid4())
 
     try:
         response = stock_table.put_item(
-            Item = {
-                'id': item_id, 
+            Item={
+                'id': item_id,
                 'stock': decimal.Decimal('0.0'),
                 'price': decimal.Decimal(price)
             }

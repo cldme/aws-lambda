@@ -6,19 +6,17 @@ import decimal
 
 # get the service resource
 dynamodb = boto3.resource('dynamodb')
-# get the users table
-ORDERS_TABLE = os.environ['ORDERS_TABLE']
+orders_table = dynamodb.Table(os.environ['ORDERS_TABLE'])
+
 
 def lambda_handler(event, context):
-    
-    orders_table = dynamodb.Table(ORDERS_TABLE)
     user_id = event['pathParameters']['user_id']
     order_id = str(uuid.uuid4())
 
     try:
         response = orders_table.put_item(
-            Item = {
-                'id': order_id, 
+            Item={
+                'id': order_id,
                 'paid': False,
                 'items': [],
                 'user_id': user_id,

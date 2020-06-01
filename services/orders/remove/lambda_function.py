@@ -6,12 +6,10 @@ import decimal
 
 # get the service resource
 dynamodb = boto3.resource('dynamodb')
-# get the users table
-ORDERS_TABLE = os.environ['ORDERS_TABLE']
+orders_table = dynamodb.Table(os.environ['ORDERS_TABLE'])
+
 
 def lambda_handler(event, context):
-
-    orders_table = dynamodb.Table(ORDERS_TABLE)
     order_id = event['pathParameters']['order_id']
 
     try:
