@@ -37,8 +37,8 @@ def get_stock(item_id):
     print(f'stock service result: {res}')
     return json.loads(res['body'])
 
+
 def lambda_handler(event, context):
-    
     orders_table = dynamodb.Table(ORDERS_TABLE)
     order_id = event['pathParameters']['order_id']
     item_id = event['pathParameters']['item_id']
@@ -70,11 +70,11 @@ def lambda_handler(event, context):
         res = json.dumps(response, default=str)
         print(f'item successfully added to order: {res}')
 
-        statusCode = 200
+        status_code = 200
     except Exception as e:
         print(f'get_item error: {e}')
-        statusCode = 400
+        status_code = 400
 
     return {
-        "statusCode": statusCode
+        "statusCode": status_code
     }

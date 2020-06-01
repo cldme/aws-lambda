@@ -16,11 +16,11 @@ def lambda_handler(event, context):
         response = orders_table.delete_item(Key={'id': order_id})
         res = json.dumps(response, default=str)
         print(f'order successfully removed: {res}')
-        statusCode = 200
+        status_code = 200
     except Exception as e:
         print(f'delete_item error: {e}')
-        statusCode = 400
+        status_code = 400
 
     return {
-        "statusCode": statusCode
+        "statusCode": status_code
     }

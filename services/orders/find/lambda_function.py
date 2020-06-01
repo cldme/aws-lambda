@@ -17,7 +17,7 @@ def lambda_handler(event, context):
         res = json.dumps(response, default=str)
         item = response['Item']
         print(f'get_item result: {res}')
-        statusCode = 200
+        status_code = 200
         body = json.dumps({
             'order_id': item['id'],
             'paid': item['paid'],
@@ -27,10 +27,10 @@ def lambda_handler(event, context):
         }, default=str)
     except Exception as e:
         print(f'get_item error: {e}')
-        statusCode = 400
+        status_code = 400
         body = json.dumps({})
 
     return {
-        "statusCode": statusCode,
+        "statusCode": status_code,
         "body": body
     }
