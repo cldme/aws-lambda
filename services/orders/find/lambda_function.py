@@ -21,7 +21,7 @@ def lambda_handler(event, context):
         body = json.dumps({
             'order_id': item['id'],
             'paid': item['paid'],
-            'items': item['items'],
+            'items': list([item_id for k, v in item['items'].items() for item_id in [k] * int(v)]),
             'user_id': item['user_id'],
             'total_cost': item['total_cost']
         }, default=str)

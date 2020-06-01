@@ -51,13 +51,14 @@ def lambda_handler(event, context):
 
         response = orders_table.update_item(
             Key={'id': order_id},
-            UpdateExpression="SET #items = list_append(#items, :new_items), #cost = #cost + :amount",
+            UpdateExpression="ADD #items.#item_id :quantity SET #cost = #cost + :price",
             ExpressionAttributeValues={
-                ':items': [item_id],
-                ':amount': decimal.Decimal(stock_object['price'])
+                ':quantity': 1,
+                ':price': decimal.Decimal(stock_object['price'])
             },
             ExpressionAttributeNames={
                 '#items': 'items',
+                '#item_id': item_id,
                 '#cost': 'total_cost'
             },
             ReturnValues="UPDATED_NEW"

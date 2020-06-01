@@ -18,7 +18,7 @@ def lambda_handler(event, context):
             Item={
                 'id': order_id,
                 'paid': False,
-                'items': [],
+                'items': {},
                 'user_id': user_id,
                 'total_cost': decimal.Decimal('0.0')
             }

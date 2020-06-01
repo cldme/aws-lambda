@@ -14,7 +14,7 @@ orders_table = dynamodb.Table(os.environ['ORDERS_TABLE'])
 def invoke_lambda(name, payload, invocation_type='RequestResponse'):
     print(f'invoking lambda function: {name}')
     payload = json.dumps(payload)
-    
+
     res = client.invoke(
         FunctionName=name,
         InvocationType=invocation_type,
@@ -23,6 +23,7 @@ def invoke_lambda(name, payload, invocation_type='RequestResponse'):
     )
 
     return res
+
 
 # get stock
 def get_stock(item_id):
@@ -43,25 +44,23 @@ def lambda_handler(event, context):
     item_id = event['pathParameters']['item_id']
 
     try:
-        order_object = orders_table.get_item(Key={'id': order_id})
         # get stock object via stock service
         stock_object = get_stock(item_id)
-        order_items = order_object['Item']['items']
-        order_items.remove(item_id)
 
-        print(f'get_item order result: {str(json.dumps(order_object, default=str))}')
         print(f'get_item stock result: {str(json.dumps(stock_object, default=str))}')
 
-        # We must re-compute the entire list of items due to DynamoDB not supporting deletion by value for lists
         response = orders_table.update_item(
             Key={'id': order_id},
-            UpdateExpression="SET #items = :items, #cost = #cost - :amount",
+            UpdateExpression="ADD #items.#item_id :quantity SET #cost = #cost - :price",
+            ConditionExpression="attribute_exists(#items.#item_id) AND #items.#item_id > :zero",
             ExpressionAttributeValues={
-                ':items': order_items,
-                ':amount': decimal.Decimal(stock_object['price'])
+                ':quantity': -1,
+                ':price': decimal.Decimal(stock_object['price']),
+                ':zero': 0
             },
             ExpressionAttributeNames={
                 '#items': 'items',
+                '#item_id': item_id,
                 '#cost': 'total_cost'
             },
             ReturnValues="UPDATED_NEW"
