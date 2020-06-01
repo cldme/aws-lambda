@@ -4,18 +4,17 @@ import boto3
 import decimal
 
 # get the service resource
+aws_lambda = boto3.client('lambda')
 dynamodb = boto3.resource('dynamodb')
-# get the users table
-ORDERS_TABLE = os.environ['ORDERS_TABLE']
+orders_table = dynamodb.Table(os.environ['ORDERS_TABLE'])
 
 
 # invoke lambda function with given name and payload
 def invoke_lambda(name, payload, invocation_type='RequestResponse'):
     print(f'invoking lambda function: {name}')
-    client = boto3.client('lambda')
     payload = json.dumps(payload)
 
-    res = client.invoke(
+    res = aws_lambda.invoke(
         FunctionName=name,
         InvocationType=invocation_type,
         LogType='Tail',
@@ -88,7 +87,6 @@ def subtract_stock(order):
 
 
 def lambda_handler(event, context):
-    orders_table = dynamodb.Table(ORDERS_TABLE)
     order_id = event['pathParameters']['order_id']
 
     try:

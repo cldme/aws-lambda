@@ -1,18 +1,18 @@
-import os
-import json
-import uuid
-import boto3
 import decimal
+import json
+import os
+
+import boto3
 
 # get the service resource
 dynamodb = boto3.resource('dynamodb')
-# get the users table
-ORDERS_TABLE = os.environ['ORDERS_TABLE']
+client = boto3.client('lambda')
+orders_table = dynamodb.Table(os.environ['ORDERS_TABLE'])
+
 
 # invoke lambda function with given name and payload
 def invoke_lambda(name, payload, invocation_type='RequestResponse'):
     print(f'invoking lambda function: {name}')
-    client = boto3.client('lambda')
     payload = json.dumps(payload)
     
     res = client.invoke(
@@ -39,7 +39,6 @@ def get_stock(item_id):
 
 
 def lambda_handler(event, context):
-    orders_table = dynamodb.Table(ORDERS_TABLE)
     order_id = event['pathParameters']['order_id']
     item_id = event['pathParameters']['item_id']
 
@@ -48,18 +47,18 @@ def lambda_handler(event, context):
         # get stock object via stock service
         stock_object = get_stock(item_id)
         order_items = order_object['Item']['items']
-        total_cost = order_object['Item']['total_cost'] - decimal.Decimal(stock_object['price'])
         order_items.remove(item_id)
 
         print(f'get_item order result: {str(json.dumps(order_object, default=str))}')
         print(f'get_item stock result: {str(json.dumps(stock_object, default=str))}')
 
+        # We must re-compute the entire list of items due to DynamoDB not supporting deletion by value for lists
         response = orders_table.update_item(
             Key={'id': order_id},
-            UpdateExpression="SET #items = :items, #cost = :cost",
+            UpdateExpression="SET #items = :items, #cost = #cost - :amount",
             ExpressionAttributeValues={
                 ':items': order_items,
-                ':cost': total_cost
+                ':amount': decimal.Decimal(stock_object['price'])
             },
             ExpressionAttributeNames={
                 '#items': 'items',
