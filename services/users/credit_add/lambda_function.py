@@ -1,8 +1,8 @@
-import os
-import json
-import uuid
-import boto3
 import decimal
+import json
+import os
+
+import boto3
 
 # get the service resource
 dynamodb = boto3.resource('dynamodb')
@@ -14,23 +14,23 @@ def lambda_handler(event, context):
     amount = decimal.Decimal(event['pathParameters']['amount'])
 
     try:
-        user_object = users_table.get_item(Key={'id': user_id})
-        current_credit = user_object['Item']['credit']
-        new_credit = current_credit + amount
-
         response = users_table.update_item(
             Key={'id': user_id},
-            UpdateExpression="set credit = :credit",
-            ExpressionAttributeValues={':credit': decimal.Decimal(new_credit)},
+            UpdateExpression="set credit = credit + :amount",
+            ConditionExpression="credit >= :negativeAmount",
+            ExpressionAttributeValues={
+                ':amount': amount,
+                ':negativeAmount': -amount
+            },
             ReturnValues="UPDATED_NEW"
         )
         res = json.dumps(response, default=str)
         print(f'credit successfully added: {res}')
-        statusCode = 200
+        status_code = 200
     except Exception as e:
         print(f'update_item error: {e}')
-        statusCode = 400
+        status_code = 400
 
     return {
-        "statusCode": statusCode
+        "statusCode": status_code
     }
