@@ -8,11 +8,11 @@ import decimal
 dynamodb = boto3.resource('dynamodb')
 # get the users table
 ORDERS_TABLE = os.environ['ORDERS_TABLE']
+client = boto3.client('lambda')
 
 # invoke lambda function with given name and payload
 def invoke_lambda(name, payload, invocation_type='RequestResponse'):
     print(f'invoking lambda function: {name}')
-    client = boto3.client('lambda')
     payload = json.dumps(payload)
     
     res = client.invoke(
