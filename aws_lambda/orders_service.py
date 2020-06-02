@@ -76,7 +76,7 @@ class OrdersService(core.Construct):
         item_add_lambda.add_environment("ORDERS_TABLE", self.table.table_name)
         item_add_lambda.add_environment("STOCK_TABLE", stock.table.table_name)
         self.table.grant_read_write_data(item_add_lambda)
-        stock.table.grant_read_write_data(item_add_lambda)
+        stock.find_lambda.grant_invoke(item_add_lambda)
 
         item_remove_lambda = aws_lambda.Function(
             self,
@@ -91,7 +91,7 @@ class OrdersService(core.Construct):
         item_remove_lambda.add_environment("ORDERS_TABLE", self.table.table_name)
         item_remove_lambda.add_environment("STOCK_TABLE", stock.table.table_name)
         self.table.grant_read_write_data(item_remove_lambda)
-        stock.table.grant_read_write_data(item_remove_lambda)
+        stock.find_lambda.grant_invoke(item_remove_lambda)
 
         self.checkout_lambda = aws_lambda.Function(
             self,
