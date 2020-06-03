@@ -6,12 +6,10 @@ import decimal
 
 # get the service resource
 dynamodb = boto3.resource('dynamodb')
-# get the users table
-ORDERS_TABLE = os.environ['ORDERS_TABLE']
+orders_table = dynamodb.Table(os.environ['ORDERS_TABLE'])
+
 
 def lambda_handler(event, context):
-    
-    orders_table = dynamodb.Table(ORDERS_TABLE)
     order_id = event['pathParameters']['order_id']
 
     try:
@@ -19,20 +17,20 @@ def lambda_handler(event, context):
         res = json.dumps(response, default=str)
         item = response['Item']
         print(f'get_item result: {res}')
-        statusCode = 200
+        status_code = 200
         body = json.dumps({
             'order_id': item['id'],
             'paid': item['paid'],
-            'items': item['items'],
+            'items': list([item_id for k, v in item['items'].items() for item_id in [k] * int(v)]),
             'user_id': item['user_id'],
             'total_cost': item['total_cost']
         }, default=str)
     except Exception as e:
         print(f'get_item error: {e}')
-        statusCode = 400
+        status_code = 400
         body = json.dumps({})
 
     return {
-        "statusCode": statusCode,
+        "statusCode": status_code,
         "body": body
     }

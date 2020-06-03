@@ -1,9 +1,10 @@
 from aws_cdk import aws_apigateway
 from aws_cdk import core
-from orders_service import OrdersService
-from payment_service import PaymentService
-from stock_service import StockService
-from users_service import UsersService
+
+from .orders_service import OrdersService
+from .payment_service import PaymentService
+from .stock_service import StockService
+from .users_service import UsersService
 
 
 class AwsLambdaStack(core.Stack):

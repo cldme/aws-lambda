@@ -14,16 +14,16 @@ def lambda_handler(event, context):
     try:
         response = orders_table.get_item(Key={'id': order_id})
         item = response['Item']
-        statusCode = 200
+        status_code = 200
         body = json.dumps({
             'paid': item['paid'],
         })
     except Exception as e:
         print(f'status error: {e}')
-        statusCode = 400
+        status_code = 400
         body = json.dumps({})
 
     return {
-        "statusCode": statusCode,
+        "statusCode": status_code,
         "body": body
     }

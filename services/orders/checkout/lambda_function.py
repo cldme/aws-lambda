@@ -4,17 +4,17 @@ import boto3
 import decimal
 
 # get the service resource
+aws_lambda = boto3.client('lambda')
 dynamodb = boto3.resource('dynamodb')
-# get the users table
-ORDERS_TABLE = os.environ['ORDERS_TABLE']
+orders_table = dynamodb.Table(os.environ['ORDERS_TABLE'])
+
 
 # invoke lambda function with given name and payload
 def invoke_lambda(name, payload, invocation_type='RequestResponse'):
     print(f'invoking lambda function: {name}')
-    client = boto3.client('lambda')
     payload = json.dumps(payload)
-    
-    res = client.invoke(
+
+    res = aws_lambda.invoke(
         FunctionName=name,
         InvocationType=invocation_type,
         LogType='Tail',
@@ -22,6 +22,7 @@ def invoke_lambda(name, payload, invocation_type='RequestResponse'):
     )
 
     return res
+
 
 # make payment
 def make_payment(order):
@@ -40,6 +41,7 @@ def make_payment(order):
 
     if res['statusCode'] != 200:
         raise ValueError('error thrown while making the payment')
+
 
 # subtract stock
 def subtract_stock(order):
@@ -78,14 +80,13 @@ def subtract_stock(order):
                 res = invoke_lambda('stock_add_lambda', q, 'Event')
             # exit after rollback is complete
             raise ValueError('error while updating the stock! rollback complete!')
-        
+
         print(f'subtracted stock for item: {item} with result: {res}')
         # in case of success add item to done queue
         queue.append(payload)
 
+
 def lambda_handler(event, context):
-    
-    orders_table = dynamodb.Table(ORDERS_TABLE)
     order_id = event['pathParameters']['order_id']
 
     try:
@@ -102,11 +103,11 @@ def lambda_handler(event, context):
 
         print(f'done updating all stock!')
 
-        statusCode = 200
+        status_code = 200
     except Exception as e:
-        statusCode = 400
+        status_code = 400
         print(f'checkout error: {e}')
 
     return {
-        "statusCode": statusCode
+        "statusCode": status_code
     }

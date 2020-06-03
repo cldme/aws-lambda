@@ -62,14 +62,14 @@ def lambda_handler(event, context):
         if not order['paid']:
             pay_order(order)
 
-        statusCode = 200
+        status_code = 200
         body = json.dumps({})
     except Exception as e:
         print(f'status error: {e}')
-        statusCode = 400
+        status_code = 400
         body = json.dumps({})
 
     return {
-        "statusCode": statusCode,
+        "statusCode": status_code,
         "body": body
     }
