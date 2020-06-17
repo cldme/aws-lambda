@@ -50,6 +50,8 @@ def revert_order(order):
 def lambda_handler(event, context):
     order_id = event['pathParameters']['order_id']
 
+    print(f'payment_cancel: {order_id}')
+
     try:
         order = get_order(order_id)
 

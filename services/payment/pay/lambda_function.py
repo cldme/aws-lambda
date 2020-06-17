@@ -53,6 +53,8 @@ def lambda_handler(event, context):
     order_id = event['pathParameters']['order_id']
     amount = decimal.Decimal(event['pathParameters']['amount'])
 
+    print(f'payment_pay: {order_id} {amount}')
+
     try:
         order = get_order(order_id)
 

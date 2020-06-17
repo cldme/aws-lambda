@@ -13,6 +13,8 @@ def lambda_handler(event, context):
     user_id = event['pathParameters']['user_id']
     amount = decimal.Decimal(event['pathParameters']['amount'])
 
+    print(f'users_credit_subtract: {user_id} {amount}')
+
     try:
         response = users_table.update_item(
             Key={'id': user_id},

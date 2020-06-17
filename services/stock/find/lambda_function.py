@@ -11,6 +11,8 @@ stock_table = dynamodb.Table(os.environ['STOCK_TABLE'])
 def lambda_handler(event, context):
     item_id = event['pathParameters']['item_id']
 
+    print(f'stock_find: {item_id}')
+
     try:
         response = stock_table.get_item(Key={'id': item_id}, ConsistentRead=True)
         res = json.dumps(response, default=str)

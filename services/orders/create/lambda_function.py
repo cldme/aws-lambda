@@ -13,6 +13,8 @@ def lambda_handler(event, context):
     user_id = event['pathParameters']['user_id']
     order_id = str(uuid.uuid4())
 
+    print(f'orders_create: {user_id} {order_id}')
+
     try:
         response = orders_table.put_item(
             Item={

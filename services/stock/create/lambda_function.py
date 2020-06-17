@@ -14,6 +14,8 @@ def lambda_handler(event, context):
     price = event['pathParameters']['price']
     item_id = str(uuid.uuid4())
 
+    print(f'stock_create: {price} {item_id}')
+
     try:
         response = stock_table.put_item(
             Item={

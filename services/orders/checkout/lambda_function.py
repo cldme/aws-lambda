@@ -89,6 +89,8 @@ def subtract_stock(order):
 def lambda_handler(event, context):
     order_id = event['pathParameters']['order_id']
 
+    print(f'orders_checkout: {order_id}')
+
     try:
         res = orders_table.get_item(Key={'id': order_id}, ConsistentRead=True)
         order = res['Item']
@@ -101,7 +103,7 @@ def lambda_handler(event, context):
         # subtract the stock via calling the stock service
         subtract_stock(order)
 
-        print(f'done updating all stock!')
+        print(f'done updating all stock for {order_id}!')
 
         status_code = 200
     except Exception as e:

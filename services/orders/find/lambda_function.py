@@ -12,6 +12,8 @@ orders_table = dynamodb.Table(os.environ['ORDERS_TABLE'])
 def lambda_handler(event, context):
     order_id = event['pathParameters']['order_id']
 
+    print(f'orders_find: {order_id}')
+
     try:
         response = orders_table.get_item(Key={'id': order_id}, ConsistentRead=True)
         res = json.dumps(response, default=str)

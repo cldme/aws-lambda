@@ -12,6 +12,8 @@ def lambda_handler(event, context):
     item_id = event['pathParameters']['item_id']
     amount = int(event['pathParameters']['number'])
 
+    print(f'stock_subtract: {item_id} {amount}')
+
     try:
         response = stock_table.update_item(
             Key={'id': item_id},

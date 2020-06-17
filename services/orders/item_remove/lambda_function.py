@@ -43,6 +43,8 @@ def lambda_handler(event, context):
     order_id = event['pathParameters']['order_id']
     item_id = event['pathParameters']['item_id']
 
+    print(f'orders_item_remove: {order_id} {item_id}')
+
     try:
         # get stock object via stock service
         stock_object = get_stock(item_id)
