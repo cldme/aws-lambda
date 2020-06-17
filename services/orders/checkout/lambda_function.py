@@ -90,7 +90,7 @@ def lambda_handler(event, context):
     order_id = event['pathParameters']['order_id']
 
     try:
-        res = orders_table.get_item(Key={'id': order_id})
+        res = orders_table.get_item(Key={'id': order_id}, ConsistentRead=True)
         order = res['Item']
 
         # make the payment via calling the payment service

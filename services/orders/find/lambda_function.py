@@ -13,7 +13,7 @@ def lambda_handler(event, context):
     order_id = event['pathParameters']['order_id']
 
     try:
-        response = orders_table.get_item(Key={'id': order_id})
+        response = orders_table.get_item(Key={'id': order_id}, ConsistentRead=True)
         res = json.dumps(response, default=str)
         item = response['Item']
         print(f'get_item result: {res}')

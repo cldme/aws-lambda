@@ -12,7 +12,7 @@ def lambda_handler(event, context):
     user_id = event['pathParameters']['user_id']
 
     try:
-        response = users_table.get_item(Key={'id': user_id})
+        response = users_table.get_item(Key={'id': user_id}, ConsistentRead=True)
         res = json.dumps(response, default=str)
         item = response['Item']
         print(f'get_item result: {res}')
