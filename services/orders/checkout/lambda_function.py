@@ -53,7 +53,7 @@ def subtract_stock(order):
         payload = {
             'pathParameters': {
                 'item_id': item,
-                'number': '1'
+                'number': str(items[item])
             }
         }
         res = invoke_lambda('stock_subtract_lambda', payload)
